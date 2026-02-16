@@ -23,3 +23,26 @@ export async function registerUser(userData) {
 
   return data;
 }
+
+/**
+ * Logs in a user by sending a POST request to the API
+ * @param {{ email: string, password: string }} credentials
+ * @returns {Promise<{ name: string, email: string, accessToken: string }>} The logged-in user data
+ * @throws Will throw an error if the API request fails.
+ */
+export async function loginUser(credentials) {
+  const response = await fetch(`${BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.errors?.[0]?.message || "Login failed");
+  }
+  return data.data ?? data; // Handle both { data: {...} } and { ... } response formats
+}
