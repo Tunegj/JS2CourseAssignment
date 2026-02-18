@@ -1,16 +1,30 @@
 import { navigate } from "../router.js";
 import { createPost } from "../api/posts.js";
+import { setFieldError, clearFieldErrors } from "../utils/formErrors.js";
 
+/**
+ * Renders the Create Post form and handles its submission.
+ * Validates the title field and displays errors if necessary.
+ * On successful creation, navigates back to the feed.
+ * @param {Event} event - The form submission event.
+ * @returns {void}
+ * @throws {Error} If the API call fails, an error message is displayed to the user.
+ *
+ */
 export function createPostHandler() {
   const app = document.getElementById("app");
 
   app.innerHTML = `
     <section class="create-post">
       <h2>Create New Post</h2>
+
       <form id="create-post-form">
-        <input type="text" id="post-title" placeholder="Title" required />
-        <textarea id="post-body" rows="5" placeholder="What's on your mind?" required></textarea>
-        <p id="error-message" style="color: red;"></p>
+        <input type="text" id="post-title" placeholder="Title" novalidate />
+          <p id="post-title-error" class= "field-error"></p>
+        <textarea id="post-body" rows="5" placeholder="What's on your mind?"></textarea>
+
+        <p id="api-error" class="api-error"></p>
+
         <button type="submit" id="submit-post">Publish</button>
         <button type="button" id="cancel-post">Cancel</button>
       </form>
@@ -20,7 +34,7 @@ export function createPostHandler() {
   const form = document.getElementById("create-post-form");
   const titleInput = document.getElementById("post-title");
   const bodyInput = document.getElementById("post-body");
-  const errorMessage = document.getElementById("error-message");
+  const apiError = document.getElementById("api-error");
   const submitBtn = document.getElementById("submit-post");
 
   document.querySelector("#cancel-post").addEventListener("click", () => {
@@ -29,29 +43,36 @@ export function createPostHandler() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    errorMessage.textContent = "";
+
+    clearFieldErrors(["post-title"]);
+    apiError.textContent = "";
 
     const title = titleInput.value.trim();
     const body = bodyInput.value.trim();
 
-    if (title.length < 1) {
-      errorMessage.textContent = "Title cannot be empty.";
+    let hasError = false;
+
+    if (!title) {
+      setFieldError("post-title", "Title cannot be empty.");
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
-    if (body.length < 1) {
-      errorMessage.textContent = "Post cannot be empty.";
-
-      return;
-    }
     submitBtn.disabled = true;
     submitBtn.textContent = "Publishing...";
 
     try {
-      await createPost({ title, body });
+      const payload = { title };
+      if (body) payload.body = body;
+
+      await createPost(payload);
       navigate("#/feed");
     } catch (error) {
-      errorMessage.textContent = error.message;
+      apiError.textContent =
+        error.message ?? "Failed to create post. Please try again.";
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Publish";
