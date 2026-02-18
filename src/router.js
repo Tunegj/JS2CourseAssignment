@@ -1,6 +1,7 @@
 import { loginHandler } from "./handlers/loginHandler.js";
 import { registerHandler } from "./handlers/registerHandler.js";
 import { feedHandler } from "./handlers/feedHandler.js";
+import { getToken } from "./utils/storage.js";
 
 const app = document.querySelector("#app");
 
@@ -17,9 +18,31 @@ export function navigate(hash) {
  * Defaults to "#/login" if no hash is present
  * @returns {string}
  */
-
 function getRoute() {
   return window.location.hash || "#/login";
+}
+
+/**
+ * Protection guard for routes that require authentication
+ * @returns {boolean} - True if the user is authenticated, false otherwise
+ */
+function authGuard() {
+  const token = getToken();
+
+  if (!token) {
+    navigate("#/login");
+    return false;
+  }
+  return true;
+}
+
+function guestGuard() {
+  const token = getToken();
+  if (token) {
+    navigate("#/feed");
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -33,12 +56,15 @@ export function renderRoute() {
 
   switch (path) {
     case "#/login":
+      if (!guestGuard()) return;
       loginHandler();
       break;
     case "#/register":
+      if (!guestGuard()) return;
       registerHandler();
       break;
     case "#/feed":
+      if (!authGuard()) return;
       feedHandler();
       break;
     default:
