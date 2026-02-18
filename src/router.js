@@ -48,7 +48,6 @@ function guestGuard() {
 /**
  * Render the correct view based on the current route
  */
-
 export function renderRoute() {
   const route = getRoute();
 

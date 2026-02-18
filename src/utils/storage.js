@@ -1,5 +1,6 @@
 const TOKEN_KEY = "accessToken";
 const USER_KEY = "user";
+const API_KEY = "apiKey";
 
 /**
  * saves auth session data to localStorage
@@ -10,6 +11,13 @@ export function saveSession({ accessToken, name, email }) {
   localStorage.setItem(USER_KEY, JSON.stringify({ name, email }));
 }
 
+export function saveApiKey(key) {
+  localStorage.setItem(API_KEY, key);
+}
+
+export function getApiKey() {
+  return localStorage.getItem(API_KEY);
+}
 /**
  * Get the saved access token (or null if not logged in)
  * @returns {string | null}
@@ -33,4 +41,5 @@ export function getUser() {
 export function clearSession() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  localStorage.removeItem(API_KEY);
 }

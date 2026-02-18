@@ -1,6 +1,7 @@
 import { navigate } from "../router.js";
 import { loginUser } from "../api/auth.js";
-import { saveSession } from "../utils/storage.js";
+import { saveSession, saveApiKey, getApiKey } from "../utils/storage.js";
+import { createApiKey } from "../api/apiKey.js";
 /**
  * Render the login view
  */
@@ -52,10 +53,16 @@ export function loginHandler() {
       const session = result.data ?? result;
 
       saveSession({
-        token: session.accessToken,
+        accessToken: session.accessToken,
         name: session.name,
         email: session.email,
       });
+
+      const existingKey = getApiKey();
+      if (!existingKey) {
+        const apiKey = await createApiKey();
+        saveApiKey(apiKey);
+      }
 
       navigate("#/feed");
     } catch (error) {
