@@ -101,7 +101,7 @@ export function registerHandler() {
 
     try {
       const payload = { name, email, password };
-      if (bio) payload.bio = bio;
+      if (bio) payload.bio = bio; // Only include bio if it's provided
 
       await registerUser(payload);
 
