@@ -18,8 +18,8 @@ export function createPostHandler() {
     <section class="create-post">
       <h2>Create New Post</h2>
 
-      <form id="create-post-form">
-        <input type="text" id="post-title" placeholder="Title" novalidate />
+      <form id="create-post-form" novalidate>
+        <input type="text" id="post-title" placeholder="Title"/>
           <p id="post-title-error" class= "field-error"></p>
         <textarea id="post-body" rows="5" placeholder="What's on your mind?"></textarea>
 

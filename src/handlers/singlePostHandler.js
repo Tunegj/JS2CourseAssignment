@@ -9,10 +9,14 @@ import { getUser } from "../utils/storage.js";
 export async function singlePostHandler(postId) {
   const app = document.querySelector("#app");
 
+  const queryString = window.location.hash.split("?")[1] ?? "";
+  const params = new URLSearchParams(queryString);
+  const openInEditMode = params.get("edit") === "true";
+
   app.innerHTML = `
     <section>
     <button id="back-to-feed">← Back</button>
-    <h1>Post</h1>
+    <h1 id="post-heading">Post</h1>
     <div id="post-content">Loading post...</div>
     </section>
 `;
@@ -21,6 +25,7 @@ export async function singlePostHandler(postId) {
     navigate("#/feed");
   });
 
+  const postHeading = document.querySelector("#post-heading");
   const postContent = document.querySelector("#post-content");
 
   let post = null;
@@ -29,6 +34,8 @@ export async function singlePostHandler(postId) {
 
   function render() {
     if (!post) return;
+
+    postHeading.textContent = `Showing ${post.author?.name ?? "Unknown Author"}'s Post`;
 
     if (isEditing) {
       postContent.innerHTML = `
@@ -40,7 +47,6 @@ export async function singlePostHandler(postId) {
           <textarea id="edit-body" rows="6">${escapeHtml(post.body) ?? ""}</textarea>
           </label>
           <p id="error-message" style="color: red;"></p>
-
           <button type="submit" id="save-btn">Save</button>
           <button type="button" id="cancel-btn">Cancel</button>
           </form>
@@ -115,7 +121,10 @@ export async function singlePostHandler(postId) {
     saveBtn.textContent = "Saving...";
 
     try {
-      const updated = await updatePost(postId, { title, body });
+      const payload = { title };
+      if (body) payload.body = body;
+
+      const updated = await updatePost(postId, payload);
 
       post = { ...post, ...updated };
 
@@ -131,8 +140,12 @@ export async function singlePostHandler(postId) {
 
   try {
     post = await getPostById(postId);
+
     const currentUser = getUser();
     isOwner = post.author?.name === currentUser?.name;
+
+    isEditing = Boolean(isOwner && openInEditMode);
+
     render();
   } catch (error) {
     postContent.innerHTML = `<p style="color: red;">Error loading post: ${error.message}</p>`;

@@ -45,6 +45,14 @@ export async function feedHandler() {
       }
       return;
     }
+
+    const editBtn = e.target.closest(`[data-action="edit"]`);
+    if (editBtn) {
+      e.stopPropagation();
+      navigate(`#/post?id=${id}&edit=true`);
+      return;
+    }
+
     navigate(`#/post?id=${id}`);
   });
 
@@ -71,6 +79,7 @@ export async function feedHandler() {
         <p>${post.body ?? ""}</p>
         <small>${post.created ? new Date(post.created).toLocaleString() : ""}</small>
         ${isAuthor ? `<button class="delete-post-btn" data-action="delete">Delete</button>` : ""}
+        ${isAuthor ? `<button class="edit-post-btn" data-action="edit">Edit</button>` : ""}
         </article>
     `;
       })
