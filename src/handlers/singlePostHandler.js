@@ -1,6 +1,10 @@
 import { navigate } from "../router.js";
 import { getPostById } from "../api/posts.js";
 
+/**
+ * Render the single post view
+ * @param {string} postId
+ */
 export async function singlePostHandler(postId) {
   const app = document.querySelector("#app");
 

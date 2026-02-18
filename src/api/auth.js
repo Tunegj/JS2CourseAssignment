@@ -1,4 +1,4 @@
-const BASE_URL = "https://v2.api.noroff.dev";
+import { BASE_URL } from "./config.js";
 
 /**
  * Registers a new user by sending a POST request to the API

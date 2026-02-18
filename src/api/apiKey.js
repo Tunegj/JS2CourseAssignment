@@ -1,7 +1,11 @@
 import { getToken } from "../utils/storage.js";
+import { BASE_URL } from "./config.js";
 
-const BASE_URL = "https://v2.api.noroff.dev";
-
+/**
+ * Creates a new API key using the provided access token.
+ * @param {string} accessToken - The access token of the logged-in user.
+ * @returns {Promise<string>} The newly created API key.
+ */
 export async function createApiKey(accessToken) {
   if (!accessToken) {
     throw new Error("Please log in to create an API key.");

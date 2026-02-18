@@ -11,10 +11,18 @@ export function saveSession({ accessToken, name, email }) {
   localStorage.setItem(USER_KEY, JSON.stringify({ name, email }));
 }
 
+/**
+ * Saves the API key to localStorage
+ * @param {string} key - The API key to save
+ */
 export function saveApiKey(key) {
   localStorage.setItem(API_KEY, key);
 }
 
+/**
+ *  Get the saved API key (or null if not set)
+ * @returns {string | null}
+ */
 export function getApiKey() {
   return localStorage.getItem(API_KEY);
 }

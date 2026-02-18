@@ -3,6 +3,8 @@ import { registerHandler } from "./handlers/registerHandler.js";
 import { feedHandler } from "./handlers/feedHandler.js";
 import { getToken, getApiKey, clearSession } from "./utils/storage.js";
 import { singlePostHandler } from "./handlers/singlePostHandler.js";
+import { createPost } from "./api/posts.js";
+import { createPostHandler } from "./handlers/createPostHandler.js";
 
 const app = document.querySelector("#app");
 
@@ -23,6 +25,10 @@ function getRoute() {
   return window.location.hash || "#/login";
 }
 
+/**
+ *  Check if the user has a valid session (access token and API key)
+ * @returns {boolean} - True if the user has a valid session, false otherwise
+ */
 function hasValidSession() {
   const token = getToken();
   const apiKey = getApiKey();
@@ -43,6 +49,10 @@ function authGuard() {
   return true;
 }
 
+/**
+ *  Protection guard for routes that should only be accessible to guests (not logged in)
+ * @returns {boolean} - True if the user is a guest, false otherwise
+ */
 function guestGuard() {
   if (hasValidSession()) {
     navigate("#/feed");
@@ -71,6 +81,10 @@ export function renderRoute() {
     case "#/feed":
       if (!authGuard()) return;
       feedHandler();
+      break;
+    case "#/create":
+      if (!authGuard()) return;
+      createPostHandler();
       break;
     case "#/post":
       if (!authGuard()) return;

@@ -1,6 +1,9 @@
 import { navigate } from "../router.js";
 import { registerUser } from "../api/auth.js";
 
+/**
+ * Render the registration form and handle user registration
+ */
 export function registerHandler() {
   const app = document.querySelector("#app");
 
