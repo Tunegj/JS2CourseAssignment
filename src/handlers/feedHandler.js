@@ -11,11 +11,20 @@ export async function feedHandler() {
 
   app.innerHTML = `
     <section>
-        <h1>Feed</h1>
+      <header class="feed-header"> 
+         <h1>Feed</h1>
+      <div class="feed-actions">
+        <button id="my-profile-btn">My Profile</button>
         <button id="create-post-btn">+ Create New Post</button>
-        <div id ="feed-content">Loading posts...</div>
+      </div>
+      </header>
+      <div id ="feed-content">Loading posts...</div>
     </section>
 `;
+
+  document.getElementById("my-profile-btn").addEventListener("click", () => {
+    navigate("#/profile");
+  });
 
   const feedContent = document.querySelector("#feed-content");
   const createPostBtn = document.getElementById("create-post-btn");

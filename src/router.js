@@ -3,8 +3,8 @@ import { registerHandler } from "./handlers/registerHandler.js";
 import { feedHandler } from "./handlers/feedHandler.js";
 import { getToken, getApiKey, clearSession } from "./utils/storage.js";
 import { singlePostHandler } from "./handlers/singlePostHandler.js";
-import { createPost } from "./api/posts.js";
 import { createPostHandler } from "./handlers/createPostHandler.js";
+import { profileHandler } from "./handlers/profileHandler.js";
 
 const app = document.querySelector("#app");
 
@@ -89,7 +89,8 @@ export function renderRoute() {
     case "#/post":
       if (!authGuard()) return;
 
-      const params = new URLSearchParams(route.split("?")[1]);
+      const queryString = route.split("?")[1] ?? "";
+      const params = new URLSearchParams(queryString);
       const postId = params.get("id");
 
       if (!postId) {
@@ -101,6 +102,10 @@ export function renderRoute() {
     case "#/logout":
       clearSession();
       navigate("#/login");
+      break;
+    case "#/profile":
+      if (!authGuard()) return;
+      profileHandler();
       break;
     default:
       navigate("#/login");

@@ -24,3 +24,17 @@ button:hover {
 .post p {
   margin: 0.5rem 0;
 }
+
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.feed-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
