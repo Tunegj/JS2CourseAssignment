@@ -2,6 +2,9 @@ import { navigate } from "../router.js";
 import { loginUser } from "../api/auth.js";
 import { saveSession, saveApiKey, getApiKey } from "../utils/storage.js";
 import { createApiKey } from "../api/apiKey.js";
+import { isValidEmail, isValidPassword } from "../utils/validators.js";
+import { setFieldError, clearFieldErrors } from "../utils/formErrors.js";
+
 /**
  * Render the login view
  */
@@ -12,8 +15,15 @@ export function loginHandler() {
     <section>
         <h1>Login</h1>
      <form id="login-form">
-        <input type="email" id="email" placeholder="Email" required />
-        <input type="password" id="password" placeholder="Password" required />
+     <label for="email">Email:
+            <input type="email" id="email" required />
+            <p id="email-error" class="field-error"></p>
+          </label>
+        <label for="password">Password:
+            <input type="password" id="password" required />
+            <p id="password-error" class="field-error"></p>
+          </label>
+          <p id="api-error" class="api-error"></p>
         <button id="login-btn" type="submit">Login</button>
         <p id="error-message" style="color: red;"></p>
         </form>
@@ -22,27 +32,42 @@ export function loginHandler() {
 `;
 
   const form = document.querySelector("#login-form");
-  const errorMessage = document.querySelector("#error-message");
   const loginBtn = document.querySelector("#login-btn");
+  const apiError = document.querySelector("#api-error");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    errorMessage.textContent = "";
+    clearFieldErrors(["email", "password"]);
+    apiError.textContent = "";
 
     const email = document.querySelector("#email").value.trim();
     const password = document.querySelector("#password").value.trim();
 
-    if (!email.endsWith("@stud.noroff.no")) {
-      errorMessage.textContent =
-        "Email must be a valid @stud.noroff.no address.";
-      return;
+    let hasError = false;
+
+    if (!email) {
+      setFieldError("email", "Email is required.");
+      hasError = true;
+    } else if (!isValidEmail(email)) {
+      setFieldError("email", "Email must be a valid @stud.noroff.no address.");
+      hasError = true;
     }
 
-    if (password.length < 8) {
-      errorMessage.textContent = "Password must be at least 8 characters long.";
-      return;
+    if (!email.endsWith("@stud.noroff.no")) {
+      setFieldError("email", "Email must be a valid @stud.noroff.no address.");
+      hasError = true;
     }
+
+    if (!password) {
+      setFieldError("password", "Password is required.");
+      hasError = true;
+    } else if (!isValidPassword(password)) {
+      setFieldError("password", "Password must be at least 8 characters long.");
+      hasError = true;
+    }
+
+    if (hasError) return;
 
     loginBtn.disabled = true;
     loginBtn.textContent = "Logging in...";
@@ -58,15 +83,14 @@ export function loginHandler() {
         email: session.email,
       });
 
-      const existingKey = getApiKey();
-      if (!existingKey) {
+      if (!getApiKey()) {
         const apiKey = await createApiKey(session.accessToken);
         saveApiKey(apiKey);
       }
 
       navigate("#/feed");
     } catch (error) {
-      errorMessage.textContent = error.message;
+      apiError.textContent = error.message ?? "Login failed, please try again.";
     } finally {
       loginBtn.disabled = false;
       loginBtn.textContent = "Login";

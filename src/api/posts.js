@@ -91,3 +91,21 @@ export async function deletePost(id) {
   }
   return true;
 }
+
+export async function updatePost(id, { title, body }) {
+  if (!id) throw new Error("Missing post ID");
+
+  const response = await fetch(`${BASE_URL}/social/posts/${id}`, {
+    method: "PUT",
+    headers: createAuthHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ title, body }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.errors?.[0]?.message ?? `Failed to update post`);
+  }
+
+  return data.data ?? data;
+}
