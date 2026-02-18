@@ -10,12 +10,18 @@ export async function getAllPosts() {
   const token = getToken();
   const apiKey = getApiKey();
 
-  const response = await fetch(`${BASE_URL}/social/posts`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "x-Noroff-Api-Keys": apiKey,
+  console.log("TOKEN:", token);
+  console.log("API KEY:", apiKey);
+
+  const response = await fetch(
+    `${BASE_URL}/social/posts?_author=true&_reactions=true&_comments=true`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-Noroff-Api-Key": apiKey,
+      },
     },
-  });
+  );
 
   const data = await response.json();
 

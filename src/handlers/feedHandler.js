@@ -24,8 +24,9 @@ export async function feedHandler() {
       .map(
         (post) => `
         <article class="post">
-        <h3>${post.author.name}</h3>
-        <p>${post.body}</p>
+        <h3>${post.author?.name ?? "Unknown Author"}</h3>
+        <p>${post.body ?? ""}</p>
+        <small>${new Date(post.created).toLocaleString()}</small>
         </article>
     `,
       )

@@ -1,7 +1,7 @@
 import { loginHandler } from "./handlers/loginHandler.js";
 import { registerHandler } from "./handlers/registerHandler.js";
 import { feedHandler } from "./handlers/feedHandler.js";
-import { getToken } from "./utils/storage.js";
+import { getToken, getApiKey, clearSession } from "./utils/storage.js";
 
 const app = document.querySelector("#app");
 
@@ -22,14 +22,20 @@ function getRoute() {
   return window.location.hash || "#/login";
 }
 
+function hasValidSession() {
+  const token = getToken();
+  const apiKey = getApiKey();
+
+  return Boolean(token && apiKey);
+}
+
 /**
  * Protection guard for routes that require authentication
  * @returns {boolean} - True if the user is authenticated, false otherwise
  */
 function authGuard() {
-  const token = getToken();
-
-  if (!token) {
+  if (!hasValidSession()) {
+    clearSession();
     navigate("#/login");
     return false;
   }
@@ -37,8 +43,7 @@ function authGuard() {
 }
 
 function guestGuard() {
-  const token = getToken();
-  if (token) {
+  if (hasValidSession()) {
     navigate("#/feed");
     return false;
   }
@@ -65,6 +70,10 @@ export function renderRoute() {
     case "#/feed":
       if (!authGuard()) return;
       feedHandler();
+      break;
+    case "#/logout":
+      clearSession();
+      navigate("#/login");
       break;
     default:
       navigate("#/login");

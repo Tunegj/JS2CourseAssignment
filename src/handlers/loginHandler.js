@@ -12,7 +12,7 @@ export function loginHandler() {
     <section>
         <h1>Login</h1>
      <form id="login-form">
-        <input type="text" id="email" placeholder="Email" required />
+        <input type="email" id="email" placeholder="Email" required />
         <input type="password" id="password" placeholder="Password" required />
         <button id="login-btn" type="submit">Login</button>
         <p id="error-message" style="color: red;"></p>
@@ -60,7 +60,7 @@ export function loginHandler() {
 
       const existingKey = getApiKey();
       if (!existingKey) {
-        const apiKey = await createApiKey();
+        const apiKey = await createApiKey(session.accessToken);
         saveApiKey(apiKey);
       }
 
