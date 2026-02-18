@@ -1,4 +1,5 @@
 import { getAllPosts } from "../api/posts";
+import { navigate } from "../router.js";
 
 export async function feedHandler() {
   const app = document.querySelector("#app");
@@ -12,6 +13,14 @@ export async function feedHandler() {
 
   const feedContent = document.querySelector("#feed-content");
 
+  feedContent.addEventListener("click", (e) => {
+    const card = e.target.closest(".post");
+    if (!card) return;
+
+    const id = card.dataset.id;
+    navigate(`#/post?id=${id}`);
+  });
+
   try {
     const posts = await getAllPosts();
 
@@ -23,10 +32,10 @@ export async function feedHandler() {
     feedContent.innerHTML = posts
       .map(
         (post) => `
-        <article class="post">
+        <article class="post" data-id="${post.id}" style="cursor: pointer;">
         <h3>${post.author?.name ?? "Unknown Author"}</h3>
         <p>${post.body ?? ""}</p>
-        <small>${new Date(post.created).toLocaleString()}</small>
+        <small>${post.created ? new Date(post.created).toLocaleString() : ""}</small>
         </article>
     `,
       )

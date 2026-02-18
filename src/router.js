@@ -2,6 +2,7 @@ import { loginHandler } from "./handlers/loginHandler.js";
 import { registerHandler } from "./handlers/registerHandler.js";
 import { feedHandler } from "./handlers/feedHandler.js";
 import { getToken, getApiKey, clearSession } from "./utils/storage.js";
+import { singlePostHandler } from "./handlers/singlePostHandler.js";
 
 const app = document.querySelector("#app");
 
@@ -70,6 +71,18 @@ export function renderRoute() {
     case "#/feed":
       if (!authGuard()) return;
       feedHandler();
+      break;
+    case "#/post":
+      if (!authGuard()) return;
+
+      const params = new URLSearchParams(route.split("?")[1]);
+      const postId = params.get("id");
+
+      if (!postId) {
+        navigate("#/feed");
+        return;
+      }
+      singlePostHandler(postId);
       break;
     case "#/logout":
       clearSession();
