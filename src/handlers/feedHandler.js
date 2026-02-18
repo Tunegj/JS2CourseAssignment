@@ -1,5 +1,6 @@
-import { getAllPosts } from "../api/posts";
+import { getAllPosts, deletePost } from "../api/posts";
 import { navigate } from "../router.js";
+import { getUser } from "../utils/storage.js";
 
 /**
  * Render the feed view with all posts
@@ -23,11 +24,27 @@ export async function feedHandler() {
     navigate("#/create");
   });
 
-  feedContent.addEventListener("click", (e) => {
+  feedContent.addEventListener("click", async (e) => {
     const card = e.target.closest(".post");
     if (!card) return;
 
     const id = card.dataset.id;
+
+    const deleteBtn = e.target.closest(`[data-action="delete"]`);
+    if (deleteBtn) {
+      e.stopPropagation();
+
+      const ok = window.confirm("Are you sure you want to delete this post?");
+      if (!ok) return;
+
+      try {
+        await deletePost(id);
+        feedHandler();
+      } catch (error) {
+        alert(error.message);
+      }
+      return;
+    }
     navigate(`#/post?id=${id}`);
   });
 
@@ -39,17 +56,24 @@ export async function feedHandler() {
       return;
     }
 
+    const currentUser = getUser();
+
+    // If the current user is the author of a post, add a delete button
+
     feedContent.innerHTML = posts
-      .map(
-        (post) => `
+      .map((post) => {
+        const isAuthor = post.author?.name === currentUser?.name;
+
+        return `
         <article class="post" data-id="${post.id}" style="cursor: pointer;">
         <h3>${post.title ?? "Untitled"}</h3>
         <p>${post.author?.name ?? "Unknown Author"}</p>
         <p>${post.body ?? ""}</p>
         <small>${post.created ? new Date(post.created).toLocaleString() : ""}</small>
+        ${isAuthor ? `<button class="delete-post-btn" data-action="delete">Delete</button>` : ""}
         </article>
-    `,
-      )
+    `;
+      })
       .join("");
   } catch (error) {
     feedContent.innerHTML = `<p style="color: red;">Error loading posts: ${error.message}</p>`;

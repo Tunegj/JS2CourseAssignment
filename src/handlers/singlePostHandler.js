@@ -1,5 +1,6 @@
 import { navigate } from "../router.js";
-import { getPostById } from "../api/posts.js";
+import { getPostById, deletePost } from "../api/posts.js";
+import { getUser } from "../utils/storage.js";
 
 /**
  * Render the single post view
@@ -22,14 +23,32 @@ export async function singlePostHandler(postId) {
 
   const postContent = document.querySelector("#post-content");
 
+  postContent.addEventListener("click", async (e) => {
+    const deleteBtn = e.target.closest(`[data-action="delete"]`);
+    if (!deleteBtn) return;
+
+    const ok = window.confirm("Are you sure you want to delete this post?");
+    if (!ok) return;
+
+    try {
+      await deletePost(postId);
+      navigate("#/feed");
+    } catch (error) {
+      alert(error.message);
+    }
+  });
+
   try {
     const post = await getPostById(postId);
+    const currentUser = getUser();
+    const isOwner = post.author?.name === currentUser?.name;
 
     postContent.innerHTML = `
     <article class="post">
         <h3>${post.author?.name ?? "Unknown Author"}</h3>
         <small>${post.created ? new Date(post.created).toLocaleString() : ""}</small>
         <p>${post.body ?? ""}</p>
+        ${isOwner ? `<button class="delete-post-btn" data-action="delete">Delete</button>` : ""}
     </article>
     `;
   } catch (error) {

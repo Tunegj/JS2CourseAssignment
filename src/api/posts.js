@@ -72,3 +72,22 @@ export async function createPost({ title, body }) {
 
   return data.data ?? data;
 }
+
+export async function deletePost(id) {
+  if (!id) throw new Error("Missing post ID");
+
+  const response = await fetch(`${BASE_URL}/social/posts/${id}`, {
+    method: "DELETE",
+    headers: createAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    let message = `Failed to delete post (${response.status})`;
+    try {
+      const data = await response.json();
+      message = data.errors?.[0]?.message ?? message;
+    } catch {}
+    throw new Error(message);
+  }
+  return true;
+}
