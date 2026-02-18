@@ -1,0 +1,18 @@
+section {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+}
+
+a {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+a:hover {
+  color: #687a6f;
+}

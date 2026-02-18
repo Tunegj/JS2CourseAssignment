@@ -1,0 +1,25 @@
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+input,
+textarea {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #687a6f;
+  box-shadow: 0 0 5px rgba(104, 122, 111, 0.5);
+}
+
+.field-error,
+.api-error {
+  color: #d33;
+  font-size: 0.9rem;
+}

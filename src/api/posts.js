@@ -1,5 +1,6 @@
 import { getApiKey, getToken } from "../utils/storage.js";
 import { BASE_URL } from "./config.js";
+import { getApiErrorMessage } from "../utils/apiErrors.js";
 
 function createAuthHeaders(extraHeaders = {}) {
   const token = getToken();
@@ -13,24 +14,51 @@ function createAuthHeaders(extraHeaders = {}) {
 }
 
 /**
- * Fetches all posts from the API.
- * @returns {Promise<Array>} An array of posts.
+ * Makes an API request with authentication headers.
+ * @param {string} path - The API endpoint path.
+ * @param {Object} options - Fetch options (method, headers, body, etc.).
+ * @param {string} fallbackMessage - Fallback error message if the request fails.
+ * @returns {Promise<any>} The response data.
  */
-export async function getAllPosts() {
-  const response = await fetch(
-    `${BASE_URL}/social/posts?_author=true&_reactions=true&_comments=true`,
-    {
-      headers: createAuthHeaders(),
-    },
-  );
+async function request(
+  path,
+  options = {},
+  fallbackMessage = "API request failed",
+) {
+  let response;
+
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers: createAuthHeaders(options.headers),
+    });
+  } catch {
+    throw new Error("Network error: Unable to connect to the server.");
+  }
+
+  if (response.status === 204) return null; // No content
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.errors?.[0]?.message ?? "Failed to fetch posts");
+    throw new Error(
+      getApiErrorMessage(data, `${fallbackMessage} (${response.status})`),
+    );
   }
 
   return data.data ?? data;
+}
+
+/**
+ * Fetches all posts from the API.
+ * @returns {Promise<Array>} An array of posts.
+ */
+export async function getAllPosts() {
+  return request(
+    "/social/posts?_author=true&_reactions=true&_comments=true",
+    { method: "GET" },
+    "Failed to fetch posts",
+  );
 }
 
 /**
@@ -41,71 +69,63 @@ export async function getAllPosts() {
 export async function getPostById(id) {
   if (!id) throw new Error("Missing post ID");
 
-  const response = await fetch(
-    `${BASE_URL}/social/posts/${id}?_author=true&_reactions=true&_comments=true`,
-    {
-      headers: createAuthHeaders(),
-    },
+  return request(
+    `/social/posts/${id}?_author=true&_reactions=true&_comments=true`,
+    { method: "GET" },
+    "Failed to fetch post",
   );
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.errors?.[0]?.message ?? `Failed to fetch post`);
-  }
-
-  return data.data ?? data;
 }
 
+/**
+ * Creates a new post.
+ * @param {{ title: string, body: string }} postData - The data for the new post.
+ * @returns {Promise<Object>} The created post data.
+ */
 export async function createPost({ title, body }) {
-  const response = await fetch(`${BASE_URL}/social/posts`, {
-    method: "POST",
-    headers: createAuthHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify({ title, body }),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.errors?.[0]?.message ?? "Failed to create post");
-  }
-
-  return data.data ?? data;
+  return request(
+    "/social/posts",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, body }),
+    },
+    "Failed to create post",
+  );
 }
 
+/**
+ * Deletes a post by its ID.
+ * @param {string} id - The ID of the post to delete.
+ * @returns {Promise<boolean>} True if the post was deleted successfully.
+ */
 export async function deletePost(id) {
   if (!id) throw new Error("Missing post ID");
 
-  const response = await fetch(`${BASE_URL}/social/posts/${id}`, {
-    method: "DELETE",
-    headers: createAuthHeaders(),
-  });
+  await request(
+    `/social/posts/${id}`,
+    { method: "DELETE" },
+    "Failed to delete post",
+  );
 
-  if (!response.ok) {
-    let message = `Failed to delete post (${response.status})`;
-    try {
-      const data = await response.json();
-      message = data.errors?.[0]?.message ?? message;
-    } catch {}
-    throw new Error(message);
-  }
   return true;
 }
 
+/**
+ * Updates a post by its ID.
+ * @param {string} id - The ID of the post to update.
+ * @param {{ title: string, body: string }} postData - The data for the post update.
+ * @returns {Promise<Object>} The updated post data.
+ */
 export async function updatePost(id, { title, body }) {
   if (!id) throw new Error("Missing post ID");
 
-  const response = await fetch(`${BASE_URL}/social/posts/${id}`, {
-    method: "PUT",
-    headers: createAuthHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify({ title, body }),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.errors?.[0]?.message ?? `Failed to update post`);
-  }
-
-  return data.data ?? data;
+  return request(
+    `/social/posts/${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, body }),
+    },
+    "Failed to update post",
+  );
 }

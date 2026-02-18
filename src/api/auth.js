@@ -1,4 +1,5 @@
 import { BASE_URL } from "./config.js";
+import { getApiErrorMessage } from "../utils/apiErrors.js";
 
 /**
  * Registers a new user by sending a POST request to the API
@@ -7,18 +8,24 @@ import { BASE_URL } from "./config.js";
  * @throws Will throw an error if the API request fails.
  */
 export async function registerUser(userData) {
-  const response = await fetch(`${BASE_URL}/auth/register`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
+  let response;
+
+  try {
+    response = await fetch(`${BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+  } catch {
+    throw new Error("Network error: Unable to connect to the server.");
+  }
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.errors?.[0]?.message || "Registration failed");
+    throw new Error(getApiErrorMessage(data, "Registration failed"));
   }
 
   return data;
@@ -31,18 +38,24 @@ export async function registerUser(userData) {
  * @throws Will throw an error if the API request fails.
  */
 export async function loginUser(credentials) {
-  const response = await fetch(`${BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(credentials),
-  });
+  let response;
+
+  try {
+    response = await fetch(`${BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+  } catch {
+    throw new Error("Network error: Unable to connect to the server.");
+  }
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.errors?.[0]?.message || "Login failed");
+    throw new Error(getApiErrorMessage(data, "Login failed"));
   }
   return data.data ?? data; // Handle both { data: {...} } and { ... } response formats
 }

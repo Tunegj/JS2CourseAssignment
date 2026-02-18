@@ -4,6 +4,7 @@ import {
   isValidName,
   isValidEmail,
   isValidPassword,
+  isValidBio,
 } from "../utils/validators.js";
 import { setFieldError, clearFieldErrors } from "../utils/formErrors.js";
 import { getApiErrorMessage } from "../utils/apiErrors.js";
@@ -32,12 +33,17 @@ export function registerHandler() {
             <p id="password-error" class="field-error"></p>
           </label>
 
+          <label for="bio">Bio:
+            <textarea id="bio" rows="6" placeholder="Tell us about yourself...(optional)" ></textarea>
+            <p id="bio-error" class="field-error"></p>
+          </label>
+
           <p id="api-error" class="api-error"></p> 
 
         <button type="submit" id="register-btn">Register</button>
         </form>
 
-        <button id="to-login">Go to login</button>
+        <div>Already have an account? <a id="to-login">Login here</a></div>
     </section>
 `;
 
@@ -48,12 +54,13 @@ export function registerHandler() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    clearFieldErrors(["username", "email", "password"]);
+    clearFieldErrors(["username", "email", "password", "bio"]);
     apiError.textContent = "";
 
     const name = document.querySelector("#username").value.trim();
     const email = document.querySelector("#email").value.trim();
     const password = document.querySelector("#password").value.trim();
+    const bio = document.querySelector("#bio").value.trim();
 
     let hasError = false;
 
@@ -82,6 +89,10 @@ export function registerHandler() {
       setFieldError("password", "Password must be at least 8 characters long.");
       hasError = true;
     }
+    if (bio && !isValidBio(bio)) {
+      setFieldError("bio", "Bio must be 160 characters or less.");
+      hasError = true;
+    }
 
     if (hasError) return;
 
@@ -89,12 +100,21 @@ export function registerHandler() {
     submitBtn.textContent = "Registering...";
 
     try {
-      await registerUser({ name, email, password });
+      const payload = { name, email, password };
+      if (bio) payload.bio = bio;
+
+      await registerUser(payload);
 
       navigate("#/login");
     } catch (error) {
-      apiError.textContent =
-        error.message ?? "Registration failed, please try again.";
+      const message = error.message ?? "Registration failed, please try again.";
+
+      if (message.toLowerCase().includes("already exists")) {
+        apiError.textContent =
+          "A user with this email or username already exists. Try a different username or login instead.";
+      } else {
+        apiError.textContent = message;
+      }
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Register";
