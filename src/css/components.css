@@ -1,16 +1,51 @@
-button {
+.btn {
   padding: 0.5rem 1rem;
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  background-color: #687a6f;
-  color: #fff;
-  transition: opacity 0.3s ease;
-  max-width: 150px;
+  font-weight: 500;
+  transition:
+    background 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.1s ease;
 }
 
-button:hover {
+.btn--ghost {
+  background: transparent;
+  color: #687a6f;
+  border: none;
+  font-size: 1.3rem;
+  padding: 0;
+}
+
+.btn--primary,
+.profile__follow-btn[data-following="false"] {
+  background-color: #687a6f;
+  color: #fff;
+}
+
+.btn--secondary {
+  background-color: #b3b1ac;
+  color: #222;
+}
+
+.btn--danger,
+.profile__follow-btn[data-following="true"] {
+  background-color: lightcoral;
+  color: #fff;
+}
+
+.btn:hover {
   opacity: 0.9;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .post {
@@ -25,16 +60,45 @@ button:hover {
   margin: 0.5rem 0;
 }
 
-.feed-header {
+/* .feed-header {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
-}
+} */
 
 .feed-actions {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.feed-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feed-search__input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.post__author {
+  background-color: transparent;
+  color: #093011b7;
+  border: none;
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.post__author:hover {
+  text-decoration: underline;
 }

@@ -80,7 +80,7 @@ export async function profileHandler() {
 
   app.innerHTML = `
     <section>
-        <button id="back-to-feed">← Back</button>
+        <button id="back-to-feed" class="btn btn--ghost">← Back</button>
         <h1>${pageTitle}</h1>
         <div id="profile-content">Loading profile...</div>
     </section>
@@ -129,7 +129,7 @@ export async function profileHandler() {
           ${
             showFollowButton
               ? `<div class="profile__actions">
-                   <button id="follow-btn" class="profile__follow-btn" type="button">...</button>
+                   <button id="follow-btn" class="btn profile__follow-btn" type="button">...</button>
                  </div>`
               : ""
           }

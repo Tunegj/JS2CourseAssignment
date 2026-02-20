@@ -37,13 +37,14 @@ export function registerHandler() {
             <textarea id="bio" rows="6" placeholder="Tell us about yourself...(optional)" ></textarea>
             <p id="bio-error" class="field-error"></p>
           </label>
+          
 
           <p id="api-error" class="api-error"></p> 
 
-        <button type="submit" id="register-btn">Register</button>
+        <button type="submit" id="register-btn" class="btn btn-primary">Register</button>
         </form>
 
-        <div>Already have an account? <a id="to-login">Login here</a></div>
+        <div>Already have an account? <button id="to-login" class="btn btn-ghost">Login here</button></div>
     </section>
 `;
 

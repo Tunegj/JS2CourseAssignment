@@ -24,10 +24,10 @@ export function loginHandler() {
             <p id="password-error" class="field-error"></p>
           </label>
           <p id="api-error" class="api-error"></p>
-        <button id="login-btn" type="submit">Login</button>
+        <button id="login-btn" class="btn btn-primary" type="submit">Login</button>
         <p id="error-message" style="color: red;"></p>
         </form>
-    <p>Don't have an account? <button id="to-register">Go to register</button></p>
+    <p>Don't have an account? <button id="to-register" class="btn btn-ghost">Go to register</button></p>
     </section>
 `;
 

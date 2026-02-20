@@ -11,25 +11,25 @@ export async function feedHandler() {
   const app = document.querySelector("#app");
 
   app.innerHTML = `
-    <section>
+    <section class="feed">
       <header class="feed-header"> 
-         <h1>Feed</h1>
-      <div class="feed-actions">
-        <button id="my-profile-btn">My Profile</button>
-        <button id="create-post-btn">+ Create New Post</button>
-      </div>
-      <div class ="feed-search">
-        <label class="feed-search__label" for="feed-search-input">Search:</label>
-        <input id="feed-search-input" class="feed-search__input" type="search" placeholder="Search posts by title or author..." autoComplete="off"/>
-        <button id="feed-search-clear" class="feed-search__clear" type="button">Clear</button>
-      </div>
+        <h1 aria-label="Feed" >Feed</h1>
       </header>
+      <div class ="feed-search">
+        <input id="feed-search-input" class="feed-search__input" type="search" placeholder="Search posts by title or author..." autoComplete="off"/>
+        <!-- <button id="feed-search-clear" class="btn btn--danger" type="button">Clear</button> -->
+      </div>
+      <div class="feed-actions">
+        <button class="btn btn--secondary" id="my-profile-btn">My Profile</button>
+        <button class="btn btn--primary" id="create-post-btn">+ Create New Post</button>
+      </div>
+     
       <div id ="feed-content" aria-live="polite">Loading posts...</div>
     </section>
 `;
   const feedContent = document.querySelector("#feed-content");
   const searchInput = document.querySelector("#feed-search-input");
-  const searchClearBtn = document.querySelector("#feed-search-clear");
+  // const searchClearBtn = document.querySelector("#feed-search-clear");
 
   document.getElementById("my-profile-btn").addEventListener("click", () => {
     navigate("#/profile");
@@ -105,11 +105,11 @@ export async function feedHandler() {
         <article class="post" data-id="${post.id}">
         <h3>${title}</h3>
         
-        <button type="button" class="post__author" data-profile="${authorRaw}">${authorName}</button>
+        <button type="button" class="post__author" data-profile="${authorRaw}">Author: ${authorName}</button>
        ${body ? `<p>${body}</p>` : ""}
-        <small>${escapeHtml(created)}</small>
-        ${isAuthor ? `<button data-action="delete">Delete</button>` : ""}
-        ${isAuthor ? `<button data-action="edit">Edit</button>` : ""}
+        <small>Posted:  ${escapeHtml(created)}</small>
+        ${isAuthor ? `<button class="btn btn--danger" data-action="delete">Delete</button>` : ""}
+        ${isAuthor ? `<button class="btn btn--primary" data-action="edit">Edit</button>` : ""}
       </article>
     `;
       })
@@ -182,11 +182,11 @@ export async function feedHandler() {
 
   searchInput.addEventListener("input", applySearch);
 
-  searchClearBtn.addEventListener("click", () => {
-    searchInput.value = "";
-    renderPosts(allPosts, "");
-    searchInput.focus();
-  });
+  // searchClearBtn.addEventListener("click", () => {
+  //   searchInput.value = "";
+  //   renderPosts(allPosts, "");
+  //   searchInput.focus();
+  // });
 
   try {
     const posts = await getAllPosts();

@@ -25,8 +25,8 @@ export function createPostHandler() {
 
         <p id="api-error" class="api-error"></p>
 
-        <button type="submit" id="submit-post">Publish</button>
-        <button type="button" id="cancel-post">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="submit-post">Publish</button>
+        <button type="button" class="btn btn--danger" id="cancel-post">Cancel</button>
       </form>
     </section>
   `;
