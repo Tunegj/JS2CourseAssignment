@@ -106,7 +106,7 @@ export async function followProfile(name) {
 
   return request(
     `/social/profiles/${safeName}/follow`,
-    { method: "POST" },
+    { method: "PUT" },
     "Failed to follow profile",
   );
 }
@@ -116,8 +116,24 @@ export async function unfollowProfile(name) {
 
   const safeName = encodeName(name);
   return request(
-    `/social/profiles/${safeName}/follow`,
-    { method: "DELETE" },
+    `/social/profiles/${safeName}/unfollow`,
+    { method: "PUT" },
     "Failed to unfollow profile",
+  );
+}
+
+export async function updateProfile(name, payload) {
+  if (!name) throw new Error("Missing profile name.");
+  if (!payload || typeof payload !== "object")
+    throw new Error("Invalid profile data.");
+
+  return request(
+    `/social/profiles/${encodeURIComponent(name)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+    "Failed to update profile",
   );
 }
