@@ -1,6 +1,22 @@
 import { navigate } from "../router.js";
-import { getMyProfile } from "../api/profiles.js";
+import {
+  getMyProfile,
+  getProfileByName,
+  getProfilePosts,
+  followProfile,
+  unfollowProfile,
+} from "../api/profiles.js";
+import { getUser } from "../utils/storage.js";
+import escapeHtml from "../utils/escapeHtml.js";
+import { getHashQueryParam } from "../utils/queryParams.js";
 
+const nameParam = getHashQueryParam("name");
+
+/**
+ * Renders the user's profile page, including their name, email, bio, and posts.
+ * Fetches the profile data from the API and handles any errors that may occur.
+ * @returns {Promise<void>} - A promise that resolves when the profile is rendered.
+ */
 export async function profileHandler() {
   const app = document.querySelector("#app");
 

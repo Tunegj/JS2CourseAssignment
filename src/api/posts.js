@@ -2,6 +2,11 @@ import { getApiKey, getToken } from "../utils/storage.js";
 import { BASE_URL } from "./config.js";
 import { getApiErrorMessage } from "../utils/apiErrors.js";
 
+/**
+ * Creates authentication headers for API requests.
+ * @param {Object} extraHeaders - Additional headers to include.
+ * @returns {Object} The headers object.
+ */
 function createAuthHeaders(extraHeaders = {}) {
   const token = getToken();
   const apiKey = getApiKey();

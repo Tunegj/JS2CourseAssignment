@@ -1,6 +1,7 @@
 import { navigate } from "../router.js";
 import { getPostById, deletePost, updatePost } from "../api/posts.js";
 import { getUser } from "../utils/storage.js";
+import { getHashQueryParam } from "../utils/queryParams.js";
 
 /**
  * Render the single post view
@@ -9,9 +10,7 @@ import { getUser } from "../utils/storage.js";
 export async function singlePostHandler(postId) {
   const app = document.querySelector("#app");
 
-  const queryString = window.location.hash.split("?")[1] ?? "";
-  const params = new URLSearchParams(queryString);
-  const openInEditMode = params.get("edit") === "true";
+  const openInEditMode = getHashQueryParam("edit") === "true";
 
   app.innerHTML = `
     <section>
@@ -150,13 +149,4 @@ export async function singlePostHandler(postId) {
   } catch (error) {
     postContent.innerHTML = `<p style="color: red;">Error loading post: ${error.message}</p>`;
   }
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }

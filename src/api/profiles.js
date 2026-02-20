@@ -18,6 +18,12 @@ function createAuthHeaders(extraHeaders = {}) {
   };
 }
 
+function encodeName(name) {
+  if (!name) throw new Error("Missing profile name.");
+
+  return encodeURIComponent(name);
+}
+
 /**
  * Make an API request with authentication headers and error handling
  * @param {string} path - The API endpoint path
@@ -61,10 +67,24 @@ async function request(path, options = {}, fallbackMessage = "Request failed") {
 export async function getProfileByName(name) {
   if (!name) throw new Error("Missing profile name.");
 
+  const safeName = encodeName(name);
+
   return request(
-    `/social/profiles/${name}?_posts=true&_followers=true&_following=true`,
+    `/social/profiles/${safeName}?_posts=true&_followers=true&_following=true`,
     { method: "GET" },
     "Failed to fetch profile",
+  );
+}
+
+export async function getProfilePosts(name, { limit = 20, page = 1 } = {}) {
+  if (!name) throw new Error("Missing profile name.");
+
+  const safeName = encodeName(name);
+
+  return request(
+    `/social/profiles/${safeName}/posts?_reactions=true&_comments=true&_limit=${limit}&_page=${page}&_author=true`,
+    { method: "GET" },
+    "Failed to fetch profile posts",
   );
 }
 
@@ -77,4 +97,27 @@ export async function getMyProfile() {
   if (!user) throw new Error("User not logged in.");
 
   return getProfileByName(user.name);
+}
+
+export async function followProfile(name) {
+  if (!name) throw new Error("Missing profile name.");
+
+  const safeName = encodeName(name);
+
+  return request(
+    `/social/profiles/${safeName}/follow`,
+    { method: "POST" },
+    "Failed to follow profile",
+  );
+}
+
+export async function unfollowProfile(name) {
+  if (!name) throw new Error("Missing profile name.");
+
+  const safeName = encodeName(name);
+  return request(
+    `/social/profiles/${safeName}/follow`,
+    { method: "DELETE" },
+    "Failed to unfollow profile",
+  );
 }
