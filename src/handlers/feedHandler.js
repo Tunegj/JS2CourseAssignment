@@ -18,10 +18,18 @@ export async function feedHandler() {
         <button id="my-profile-btn">My Profile</button>
         <button id="create-post-btn">+ Create New Post</button>
       </div>
+      <div class ="feed-search">
+        <label class="feed-search__label" for="feed-search-input">Search:</label>
+        <input id="feed-search-input" class="feed-search__input" type="search" placeholder="Search posts by title or author..." autoComplete="off"/>
+        <button id="feed-search-clear" class="feed-search__clear" type="button">Clear</button>
+      </div>
       </header>
-      <div id ="feed-content">Loading posts...</div>
+      <div id ="feed-content" aria-live="polite">Loading posts...</div>
     </section>
 `;
+  const feedContent = document.querySelector("#feed-content");
+  const searchInput = document.querySelector("#feed-search-input");
+  const searchClearBtn = document.querySelector("#feed-search-clear");
 
   document.getElementById("my-profile-btn").addEventListener("click", () => {
     navigate("#/profile");
@@ -31,7 +39,93 @@ export async function feedHandler() {
     navigate("#/create");
   });
 
-  const feedContent = document.querySelector("#feed-content");
+  let allPosts = [];
+
+  /**
+   * Normalize a string for case-insensitive search
+   * @param {string} str The string to normalize
+   * @returns {string} The normalized string
+   */
+  function normalizeString(str) {
+    return String(str || "")
+      .toLowerCase()
+      .trim();
+  }
+
+  /**
+   * Check if a post matches the search query
+   * @param {Object} post The post object
+   * @param {string} query The search query
+   * @returns {boolean} True if the post matches the query, false otherwise
+   */
+  function matchesSearch(post, query) {
+    if (!query) return true;
+
+    const title = normalizeString(post.title);
+    const author = normalizeString(post.author?.name);
+    const body = normalizeString(post.body);
+
+    return (
+      title.includes(query) || author.includes(query) || body.includes(query)
+    );
+  }
+
+  /**
+   * Render the posts in the feed
+   * @param {Array} posts The array of post objects
+   * @returns {void}
+   */
+  function renderPosts(posts, queryText = "") {
+    if (!Array.isArray(posts) || posts.length === 0) {
+      if (queryText) {
+        feedContent.innerHTML = `<p>No posts found matching "<strong>${escapeHtml(
+          queryText,
+        )}</strong>".</p>`;
+      } else {
+        feedContent.innerHTML = "<p>No posts found.</p>";
+      }
+      return;
+    }
+
+    const currentUser = getUser();
+
+    feedContent.innerHTML = posts
+      .map((post) => {
+        const isAuthor = post.author?.name === currentUser?.name;
+
+        const title = post.title ? escapeHtml(post.title) : "Untitled";
+        const authorRaw = post.author?.name ?? "";
+        const authorName = authorRaw ? escapeHtml(authorRaw) : "Unknown Author";
+        const body = post.body ? escapeHtml(post.body) : "";
+        const created = post.created
+          ? new Date(post.created).toLocaleString()
+          : "";
+
+        return `
+        <article class="post" data-id="${post.id}">
+        <h3>${title}</h3>
+        
+        <button type="button" class="post__author" data-profile="${authorRaw}">${authorName}</button>
+       ${body ? `<p>${body}</p>` : ""}
+        <small>${escapeHtml(created)}</small>
+        ${isAuthor ? `<button data-action="delete">Delete</button>` : ""}
+        ${isAuthor ? `<button data-action="edit">Edit</button>` : ""}
+      </article>
+    `;
+      })
+      .join("");
+  }
+
+  /**
+   * Apply the search filter to the posts and re-render the feed
+   * @returns {void}
+   */
+  function applySearch() {
+    const rawQuery = searchInput.value.trim();
+    const query = normalizeString(rawQuery);
+    const filteredPosts = allPosts.filter((post) => matchesSearch(post, query));
+    renderPosts(filteredPosts, rawQuery);
+  }
 
   feedContent.addEventListener("click", async (e) => {
     // Profile click
@@ -86,44 +180,18 @@ export async function feedHandler() {
     navigate(`#/post?id=${card.dataset.id}`);
   });
 
+  searchInput.addEventListener("input", applySearch);
+
+  searchClearBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    renderPosts(allPosts, "");
+    searchInput.focus();
+  });
+
   try {
     const posts = await getAllPosts();
-
-    if (!Array.isArray(posts) || posts.length === 0) {
-      feedContent.innerHTML = "<p>No posts found.</p>";
-      return;
-    }
-
-    const currentUser = getUser();
-
-    // If the current user is the author of a post, add a delete button
-
-    feedContent.innerHTML = posts
-      .map((post) => {
-        const isAuthor = post.author?.name === currentUser?.name;
-
-        const title = post.title ? escapeHtml(post.title) : "Untitled";
-        const authorRaw = post.author?.name ?? "";
-        const authorName = authorRaw ? escapeHtml(authorRaw) : "Unknown Author";
-        const body = post.body ? escapeHtml(post.body) : "";
-        const created = post.created
-          ? new Date(post.created).toLocaleString()
-          : "";
-
-        return `
-        <article class="post" data-id="${post.id}" style="cursor: pointer;">
-        <h3>${title}</h3>
-
-        <button type="button" class="post__author" data-profile="${authorRaw}">${authorName}</button>
-       ${body ? `<p>${body}</p>` : ""}
-        <small>${escapeHtml(created)}</small>
-
-        ${isAuthor ? `<button data-action="delete">Delete</button>` : ""}
-        ${isAuthor ? `<button data-action="edit">Edit</button>` : ""}
-      </article>
-    `;
-      })
-      .join("");
+    allPosts = Array.isArray(posts) ? posts : [];
+    renderPosts(allPosts);
   } catch (error) {
     feedContent.innerHTML = `<p style="color: red;">Error loading posts: ${error.message}</p>`;
   }

@@ -12,7 +12,7 @@ export function getHashQueryParam(key) {
 
 /**
  * Get all query parameters from the URL hash as an object - #/profile?name=JohnDoe&age=30
- * @returns
+ * @returns {Object} - An object containing all query parameters as key-value pairs
  */
 export function getHashQueryParams() {
   const hash = window.location.hash || "";

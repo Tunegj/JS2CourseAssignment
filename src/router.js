@@ -1,13 +1,12 @@
 import { loginHandler } from "./handlers/loginHandler.js";
 import { registerHandler } from "./handlers/registerHandler.js";
 import { feedHandler } from "./handlers/feedHandler.js";
-import { getToken, getApiKey, clearSession } from "./utils/storage.js";
 import { singlePostHandler } from "./handlers/singlePostHandler.js";
 import { createPostHandler } from "./handlers/createPostHandler.js";
 import { profileHandler } from "./handlers/profileHandler.js";
-import { getHashQueryParam } from "./utils/queryParams.js";
 
-const app = document.querySelector("#app");
+import { getToken, getApiKey, clearSession } from "./utils/storage.js";
+import { getHashQueryParam } from "./utils/queryParams.js";
 
 /**
  * Navigate to a new route by updating the URL hash
@@ -51,7 +50,7 @@ function authGuard() {
 }
 
 /**
- *  Protection guard for routes that should only be accessible to guests (not logged in)
+ *  Protection guard for routes that should only be accessible to guests (not logged in) .eg login and register pages
  * @returns {boolean} - True if the user is a guest, false otherwise
  */
 function guestGuard() {
@@ -68,6 +67,7 @@ function guestGuard() {
 export function renderRoute() {
   const route = getRoute();
 
+  // Extract the path without query parameters for routing - array destructuring to get the first element (the path)
   const [path] = route.split("?");
 
   switch (path) {
@@ -90,9 +90,10 @@ export function renderRoute() {
     case "#/post":
       if (!authGuard()) return;
 
-      const postId = getHashQueryParam("id");
+      const postId = getHashQueryParam("id"); //extract the post ID from the query parameters (e.g., "#/post?id=123")
 
       if (!postId) {
+        // If no post ID is provided, redirect to the feed page
         navigate("#/feed");
         return;
       }
@@ -117,7 +118,5 @@ export function renderRoute() {
  */
 export function initRouter() {
   window.addEventListener("hashchange", renderRoute);
-  window.addEventListener("DOMContentLoaded", renderRoute);
-
   renderRoute();
 }
