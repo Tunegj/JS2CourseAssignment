@@ -5,6 +5,7 @@ import { getToken, getApiKey, clearSession } from "./utils/storage.js";
 import { singlePostHandler } from "./handlers/singlePostHandler.js";
 import { createPostHandler } from "./handlers/createPostHandler.js";
 import { profileHandler } from "./handlers/profileHandler.js";
+import { getHashQueryParam } from "./utils/queryParams.js";
 
 const app = document.querySelector("#app");
 
@@ -89,9 +90,7 @@ export function renderRoute() {
     case "#/post":
       if (!authGuard()) return;
 
-      const queryString = route.split("?")[1] ?? "";
-      const params = new URLSearchParams(queryString);
-      const postId = params.get("id");
+      const postId = getHashQueryParam("id");
 
       if (!postId) {
         navigate("#/feed");

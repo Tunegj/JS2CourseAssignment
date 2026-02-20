@@ -1,6 +1,7 @@
 import { getAllPosts, deletePost } from "../api/posts";
 import { navigate } from "../router.js";
 import { getUser } from "../utils/storage.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 /**
  * Render the feed view with all posts
@@ -26,22 +27,32 @@ export async function feedHandler() {
     navigate("#/profile");
   });
 
-  const feedContent = document.querySelector("#feed-content");
-  const createPostBtn = document.getElementById("create-post-btn");
-
-  createPostBtn.addEventListener("click", () => {
+  document.getElementById("create-post-btn").addEventListener("click", () => {
     navigate("#/create");
   });
 
+  const feedContent = document.querySelector("#feed-content");
+
   feedContent.addEventListener("click", async (e) => {
-    const card = e.target.closest(".post");
-    if (!card) return;
+    // Profile click
+    const profileBtn = e.target.closest(`[data-profile]`);
+    if (profileBtn) {
+      e.stopPropagation();
+      const name = profileBtn.dataset.profile;
+      if (name) {
+        navigate(`#/profile?name=${encodeURIComponent(name)}`);
+      }
+      return;
+    }
 
-    const id = card.dataset.id;
-
+    // Delete button click
     const deleteBtn = e.target.closest(`[data-action="delete"]`);
     if (deleteBtn) {
       e.stopPropagation();
+
+      const card = e.target.closest(".post");
+      const id = card?.dataset.id;
+      if (!id) return;
 
       const ok = window.confirm("Are you sure you want to delete this post?");
       if (!ok) return;
@@ -55,21 +66,31 @@ export async function feedHandler() {
       return;
     }
 
+    // Edit button click
     const editBtn = e.target.closest(`[data-action="edit"]`);
     if (editBtn) {
       e.stopPropagation();
+
+      const card = e.target.closest(".post");
+      const id = card?.dataset.id;
+      if (!id) return;
+
       navigate(`#/post?id=${id}&edit=true`);
       return;
     }
 
-    navigate(`#/post?id=${id}`);
+    // Post card click
+    const card = e.target.closest(".post");
+    if (!card) return;
+
+    navigate(`#/post?id=${card.dataset.id}`);
   });
 
   try {
     const posts = await getAllPosts();
 
-    if (!posts.length) {
-      feedContent.innerHTML = "<p>No posts available.</p>";
+    if (!Array.isArray(posts) || posts.length === 0) {
+      feedContent.innerHTML = "<p>No posts found.</p>";
       return;
     }
 
@@ -81,15 +102,25 @@ export async function feedHandler() {
       .map((post) => {
         const isAuthor = post.author?.name === currentUser?.name;
 
+        const title = post.title ? escapeHtml(post.title) : "Untitled";
+        const authorRaw = post.author?.name ?? "";
+        const authorName = authorRaw ? escapeHtml(authorRaw) : "Unknown Author";
+        const body = post.body ? escapeHtml(post.body) : "";
+        const created = post.created
+          ? new Date(post.created).toLocaleString()
+          : "";
+
         return `
         <article class="post" data-id="${post.id}" style="cursor: pointer;">
-        <h3>${post.title ?? "Untitled"}</h3>
-        <p>${post.author?.name ?? "Unknown Author"}</p>
-        <p>${post.body ?? ""}</p>
-        <small>${post.created ? new Date(post.created).toLocaleString() : ""}</small>
-        ${isAuthor ? `<button class="delete-post-btn" data-action="delete">Delete</button>` : ""}
-        ${isAuthor ? `<button class="edit-post-btn" data-action="edit">Edit</button>` : ""}
-        </article>
+        <h3>${title}</h3>
+
+        <button type="button" class="post__author" data-profile="${authorRaw}">${authorName}</button>
+       ${body ? `<p>${body}</p>` : ""}
+        <small>${escapeHtml(created)}</small>
+
+        ${isAuthor ? `<button data-action="delete">Delete</button>` : ""}
+        ${isAuthor ? `<button data-action="edit">Edit</button>` : ""}
+      </article>
     `;
       })
       .join("");

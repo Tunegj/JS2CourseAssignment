@@ -2,6 +2,7 @@ import { navigate } from "../router.js";
 import { getPostById, deletePost, updatePost } from "../api/posts.js";
 import { getUser } from "../utils/storage.js";
 import { getHashQueryParam } from "../utils/queryParams.js";
+import { escapeHtml } from "../utils/escapeHtml.js";
 
 /**
  * Render the single post view
@@ -34,16 +35,21 @@ export async function singlePostHandler(postId) {
   function render() {
     if (!post) return;
 
-    postHeading.textContent = `Showing ${post.author?.name ?? "Unknown Author"}'s Post`;
+    const authorNameRaw = post.author?.name ?? "";
+    const authorName = authorNameRaw
+      ? escapeHtml(authorNameRaw)
+      : "Unknown Author";
+
+    postHeading.textContent = `Showing ${authorName}'s Post`;
 
     if (isEditing) {
       postContent.innerHTML = `
           <form id="edit-post-form">
           <label>Title:
-          <input type="text" id="edit-title" value="${escapeHtml(post.title) ?? ""}" required />
+          <input type="text" id="edit-title" value="${post.title ? escapeHtml(post.title) : ""}" required />
           </label>
           <label>Body:
-          <textarea id="edit-body" rows="6">${escapeHtml(post.body) ?? ""}</textarea>
+          <textarea id="edit-body" rows="6">${post.body ? escapeHtml(post.body) : ""}</textarea>
           </label>
           <p id="error-message" style="color: red;"></p>
           <button type="submit" id="save-btn">Save</button>
@@ -53,12 +59,18 @@ export async function singlePostHandler(postId) {
       return;
     }
 
+    const title = post.title ? escapeHtml(post.title) : "Untitled";
+    const body = post.body ? escapeHtml(post.body) : "";
+    const created = post.created ? new Date(post.created).toLocaleString() : "";
+
     postContent.innerHTML = `
-    <article class="post">
-        <h3>${post.title ?? "Untitled"}</h3>
-        <p><strong> By: ${post.author?.name ?? "Unknown Author"}</strong></p>
-        <small>${post.created ? new Date(post.created).toLocaleString() : ""}</small>
-        <p>${post.body ?? ""}</p>
+    <article class="post" data-id="${post.id}">
+        <h3>${title}</h3>
+        <p><strong> By:</strong>
+        <button type="button" class="post__author" data-profile="${authorNameRaw ? escapeHtml(authorNameRaw) : ""}">${authorName}</button>
+        </p>
+        <small>${escapeHtml(created)}</small>
+        ${body ? `<p>${body}</p>` : ""}
         ${
           isOwner
             ? `
@@ -71,6 +83,17 @@ export async function singlePostHandler(postId) {
   }
 
   postContent.addEventListener("click", async (e) => {
+    const profileBtn = e.target.closest("[data-profile]");
+    if (profileBtn) {
+      e.stopPropagation();
+
+      const name = profileBtn.dataset.profile;
+      if (name) {
+        navigate(`#/profile?name=${encodeURIComponent(name)}`);
+      }
+      return;
+    }
+
     const deleteBtn = e.target.closest(`[data-action="delete"]`);
     const editBtn = e.target.closest(`[data-action="edit"]`);
     const cancelBtn = e.target.closest("#cancel-btn");
@@ -147,6 +170,6 @@ export async function singlePostHandler(postId) {
 
     render();
   } catch (error) {
-    postContent.innerHTML = `<p style="color: red;">Error loading post: ${error.message}</p>`;
+    postContent.innerHTML = `<p class="single-post-error" role="alert">${escapeHtml(`Error loading post: ${error.message}`)}</p>`;
   }
 }
