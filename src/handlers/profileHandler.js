@@ -88,7 +88,7 @@ function renderPosts(container, posts) {
             <article class="post" data-id="${p.id}" >
                 <h3>${title}</h3>
                 ${body ? `<p>${body}</p>` : ""}
-                <small>${safeText(created)}</small>
+                <small>${escapeHtml(created)}</small>
             </article>
         `;
     })
@@ -103,13 +103,7 @@ function renderPosts(container, posts) {
 function buildMedia(url) {
   const cleanUrl = String(url || "").trim();
   if (!cleanUrl) return undefined;
-
-  try {
-    new URL(cleanUrl);
-  } catch {
-    return undefined;
-  }
-
+  if (!isValidUrl(cleanUrl)) return undefined;
   return { url: cleanUrl, alt: "" };
 }
 
@@ -122,9 +116,10 @@ export async function profileHandler() {
   const app = document.querySelector("#app");
 
   const nameParam = getHashQueryParam("name");
+  const profileName = nameParam ? decodeURIComponent(nameParam) : null;
   const viewer = getUser();
 
-  const pageTitle = nameParam ? "Profile" : "My Profile";
+  const pageTitle = profileName ? `${profileName}'s Profile` : "My Profile";
 
   app.innerHTML = `
     <section class="profile-page">
@@ -138,7 +133,7 @@ export async function profileHandler() {
 `;
 
   document.querySelector("#back-to-feed").addEventListener("click", () => {
-    navigate("#/feed");
+    window.history.length > 1 ? window.history.back() : navigate("#/feed");
   });
 
   document.querySelector("#logout-btn").addEventListener("click", () => {
@@ -150,8 +145,8 @@ export async function profileHandler() {
   let currentProfile = null;
 
   async function loadProfile() {
-    currentProfile = nameParam
-      ? await getProfileByName(nameParam)
+    currentProfile = profileName
+      ? await getProfileByName(profileName)
       : await getMyProfile();
     return currentProfile;
   }
@@ -189,7 +184,7 @@ export async function profileHandler() {
 
           <div class="profile__actions">
         ${isMe ? `<button id="edit-profile-btn" class="btn btn--secondary" type="button">Edit Profile</button>` : ""}
-        ${showFollowButton ? `<button id="follow-btn" class="btn profile__follow-btn" type="button">...</button>` : ""}
+        ${showFollowButton ? `<button id="follow-btn" class="btn profile__follow-btn" type="button"></button>` : ""}
           </div>
         </div>
         ${

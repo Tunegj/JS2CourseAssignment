@@ -23,9 +23,8 @@ export function loginHandler() {
       <input type="password" id="password" required />
       <p id="password-error" class="field-error"></p>
       </label>
-      <p id="api-error" class="api-error"></p>
+      <p id="api-error" class="api-error" role="alert"></p>
       <button id="login-btn" class="btn btn--primary" type="submit">Login</button>
-      <p id="error-message" style="color: red;"></p>
     </form>
     <p>Don't have an account? <button id="to-register" class="btn btn--ghost">Go to register</button></p>
     </section>
@@ -50,11 +49,6 @@ export function loginHandler() {
       setFieldError("email", "Email is required.");
       hasError = true;
     } else if (!isValidEmail(email)) {
-      setFieldError("email", "Email must be a valid @stud.noroff.no address.");
-      hasError = true;
-    }
-
-    if (!email.endsWith("@stud.noroff.no")) {
       setFieldError("email", "Email must be a valid @stud.noroff.no address.");
       hasError = true;
     }
