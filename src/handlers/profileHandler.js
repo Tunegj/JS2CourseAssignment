@@ -5,6 +5,7 @@ import {
   getProfilePosts,
   followProfile,
   unfollowProfile,
+  updateProfile,
 } from "../api/profiles.js";
 import { getUser } from "../utils/storage.js";
 import { escapeHtml } from "../utils/escapeHtml.js";
@@ -59,7 +60,6 @@ function getCounts(profile) {
  */
 function isFollowing(profile, viewerName) {
   if (!viewerName) return false;
-
   if (!Array.isArray(profile?.followers)) return false;
   return profile.followers.some((f) => f?.name === viewerName);
 }
@@ -94,6 +94,18 @@ function renderPosts(container, posts) {
 }
 
 /**
+ * Optional helper to build media objects, ensuring URLs are valid and alt text is provided
+ * @param {string} url
+ * @param {string} alt
+ * @returns {{url:string, alt:string}|undefined} A media object or undefined if the URL is invalid
+ */
+function buildMedia(url, alt) {
+  const cleanUrl = String(url || "").trim();
+  if (!cleanUrl) return undefined;
+  return { url: cleanUrl, alt: String(alt || "").trim() };
+}
+
+/**
  * Renders the user's profile page, including their name, email, bio, and posts.
  * Fetches the profile data from the API and handles any errors that may occur.
  * @returns {Promise<void>} - A promise that resolves when the profile is rendered.
@@ -107,9 +119,9 @@ export async function profileHandler() {
   const pageTitle = nameParam ? "Profile" : "My Profile";
 
   app.innerHTML = `
-    <section>
-        <button id="back-to-feed" class="btn btn--ghost">← Back</button>
-        <h1>${pageTitle}</h1>
+    <section class="profile-page">
+        <button id="back-to-feed" class="btn btn--ghost" type="button">← Back</button>
+        <h1>${safeText(pageTitle)}</h1>
         <div id="profile-content">Loading profile...</div>
     </section>
 `;
@@ -120,11 +132,20 @@ export async function profileHandler() {
 
   const profileContent = document.querySelector("#profile-content");
 
-  try {
-    const profile = nameParam
+  let currentProfile = null;
+
+  async function loadProfile() {
+    currentProfile = nameParam
       ? await getProfileByName(nameParam)
       : await getMyProfile();
+    return currentProfile;
+  }
 
+  async function loadPosts(profileName) {
+    return getProfilePosts(profileName, { limit: 20, page: 1 });
+  }
+
+  function renderView(profile) {
     const isMe = !!viewer?.name && profile?.name === viewer.name;
     const showFollowButton = !!nameParam && !isMe;
 
@@ -154,15 +175,11 @@ export async function profileHandler() {
             ${isMe && profile?.email ? `<p class="profile__email">${safeText(profile.email, "")}</p>` : ""}
           </div>
 
-          ${
-            showFollowButton
-              ? `<div class="profile__actions">
-                   <button id="follow-btn" class="btn profile__follow-btn" type="button">...</button>
-                 </div>`
-              : ""
-          }
+          <div class="profile__actions">
+        ${isMe ? `<button id="edit-profile-btn" class="btn btn--secondary" type="button">Edit Profile</button>` : ""}
+        ${showFollowButton ? `<button id="follow-btn" class="btn profile__follow-btn" type="button">...</button>` : ""}
+          </div>
         </div>
-
         ${
           profile?.bio
             ? `<p class="profile__bio">${safeText(profile.bio, "")}</p>`
@@ -191,22 +208,27 @@ export async function profileHandler() {
     `;
 
     const postsContainer = document.querySelector("#profile-posts");
-    const profilePosts = await getProfilePosts(profile.name, {
-      limit: 20,
-      page: 1,
-    });
-
-    renderPosts(postsContainer, profilePosts);
-
     postsContainer.addEventListener("click", (e) => {
       const card = e.target.closest(".post");
       if (!card) return;
       navigate(`#/post?id=${encodeURIComponent(card.dataset.id)}`);
     });
 
+    loadPosts(profile.name)
+      .then((posts) => renderPosts(postsContainer, posts))
+      .catch((error) => {
+        postsContainer.innerHTML = `<p class="profile-posts__error" role="alert">
+            ${safeText(error?.message ?? "Failed to load posts. Please try again.")}
+            </p>`;
+      });
+
+    if (isMe) {
+      const editBtn = document.querySelector("#edit-profile-btn");
+      editBtn.addEventListener("click", () => renderEdit(currentProfile));
+    }
+
     if (showFollowButton) {
       const btn = document.querySelector("#follow-btn");
-
       let followingState = isFollowing(profile, viewer?.name);
 
       function setBtn(state, disabled = false, label = null) {
@@ -234,14 +256,14 @@ export async function profileHandler() {
             followingState = true;
           }
 
-          setBtn(followingState, false);
-
           const refreshed = await getProfileByName(profile.name);
-          const updated = getCounts(refreshed);
+          currentProfile = refreshed;
 
+          const updated = getCounts(refreshed);
           const postsEl = document.querySelector("#stat-posts");
           const followersEl = document.querySelector("#stat-followers");
           const followingEl = document.querySelector("#stat-following");
+
           if (postsEl) postsEl.textContent = String(updated.posts);
           if (followersEl) followersEl.textContent = String(updated.followers);
           if (followingEl) followingEl.textContent = String(updated.following);
@@ -258,9 +280,102 @@ export async function profileHandler() {
         }
       });
     }
+  }
+
+  function renderEdit(profile) {
+    const isMe = !!viewer?.name && profile?.name === viewer.name;
+    if (!isMe) return renderView(profile);
+
+    const bioValue = safeText(profile?.bio, "");
+    const avatarUrlValue = safeText(profile?.avatar?.url, "");
+    const avatarAltValue = safeText(profile?.avatar?.alt, "");
+    const bannerUrlValue = safeText(profile?.banner?.url, "");
+
+    profileContent.innerHTML = `
+    <div class="profile-edit">
+      <h2 class="profile-edit__title">Edit Profile</h2>
+
+      <form id="profile-edit-form" class="form">
+      <label>Bio<textarea id="edit-bio" name="bio" rows="4" maxlength="160" placeholder="Write a short bio (max 160 characters)...">${bioValue}</textarea></label>
+ 
+      
+          <fieldset class="profile-edit__fieldset">
+            <legend>Banner</legend>
+            <label>
+              Banner URL
+              <input id="edit-banner-url" type="url" value="${bannerUrlValue}" placeholder="https://..." />
+            </label>
+          </fieldset>
+          <fieldset class="profile-edit__fieldset">
+            <legend>Avatar</legend>
+            <label>
+              Avatar URL
+              <input id="edit-avatar-url" type="url" value="${avatarUrlValue}" placeholder="https://..." />
+              <input id="edit-avatar-alt" type="text" value="${avatarAltValue}" placeholder="Alt text for the avatar image" />
+            </label>
+          </fieldset>
+
+          <p id="profile-edit-error" class="api-error" role="alert"></p>
+
+          <div class="profile-edit__actions">
+            <button id="profile-save-btn" class="btn btn--primary" type="submit">Save</button>
+            <button id="profile-cancel-btn" class="btn btn--danger" type="button">Cancel</button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    const form = document.querySelector("#profile-edit-form");
+    const cancelBtn = document.querySelector("#profile-cancel-btn");
+    const saveBtn = document.querySelector("#profile-save-btn");
+    const errorEl = document.querySelector("#profile-edit-error");
+
+    cancelBtn.addEventListener("click", () => {
+      renderView(currentProfile);
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorEl.textContent = "";
+
+      const bio = document.querySelector("#edit-bio").value.trim();
+      const bannerUrl = document.querySelector("#edit-banner-url").value.trim();
+      const avatarUrl = document.querySelector("#edit-avatar-url").value.trim();
+      const avatarAlt = document.querySelector("#edit-avatar-alt").value.trim();
+
+      const payload = {
+        bio: bio || "",
+      };
+
+      const avatar = buildMedia(avatarUrl, avatarAlt);
+      const banner = buildMedia(bannerUrl, "");
+
+      if (avatar) payload.avatar = avatar;
+      if (banner) payload.banner = banner;
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      try {
+        await updateProfile(profile.name, payload);
+        currentProfile = await loadProfile();
+        renderView(currentProfile);
+      } catch (error) {
+        errorEl.textContent =
+          error?.message || "Failed to update profile. Please try again.";
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save";
+      }
+    });
+  }
+
+  try {
+    await loadProfile(); // Refresh profile to get latest data and version
+    renderView(currentProfile);
   } catch (error) {
-    profileContent.innerHTML = `<p class="profile-posts__error" role="alert">
-      ${safeText(error?.message ?? "Failed to load profile. Please try again.")}
-      </p>`;
+    profileContent.innerHTML = `<p class="profile-error" role="alert">
+        ${safeText(error?.message ?? "Failed to load profile. Please try again.")}
+        </p>`;
   }
 }
