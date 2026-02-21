@@ -14,20 +14,20 @@ export function loginHandler() {
   app.innerHTML = `
     <section>
         <h1>Login</h1>
-     <form id="login-form">
-     <label for="email">Email:
-            <input type="email" id="email" required />
-            <p id="email-error" class="field-error"></p>
-          </label>
-        <label for="password">Password:
-            <input type="password" id="password" required />
-            <p id="password-error" class="field-error"></p>
-          </label>
-          <p id="api-error" class="api-error"></p>
-        <button id="login-btn" class="btn btn-primary" type="submit">Login</button>
-        <p id="error-message" style="color: red;"></p>
-        </form>
-    <p>Don't have an account? <button id="to-register" class="btn btn-ghost">Go to register</button></p>
+     <form id="login-form" class="form" novalidate>
+      <label for="email">Email:
+      <input type="email" id="email" required />
+      <p id="email-error" class="field-error"></p>
+      </label>
+      <label for="password">Password:
+      <input type="password" id="password" required />
+      <p id="password-error" class="field-error"></p>
+      </label>
+      <p id="api-error" class="api-error"></p>
+      <button id="login-btn" class="btn btn--primary" type="submit">Login</button>
+      <p id="error-message" style="color: red;"></p>
+    </form>
+    <p>Don't have an account? <button id="to-register" class="btn btn--ghost">Go to register</button></p>
     </section>
 `;
 

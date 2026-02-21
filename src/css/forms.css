@@ -1,6 +1,5 @@
 form {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 1rem;
 }
 
@@ -20,6 +19,7 @@ textarea:focus {
 
 .field-error,
 .api-error {
-  color: #d33;
+  color: #c62828;
+  margin-top: 0.25rem;
   font-size: 0.9rem;
 }

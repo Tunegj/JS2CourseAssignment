@@ -19,7 +19,7 @@ export function registerHandler() {
     <section>
         <h1>Register</h1>
         
-        <form id="register-form">
+        <form id="register-form" class="form" novalidate>
           <label for="username">Username:
             <input type="text" id="username" required />
             <p id="username-error" class="field-error"></p>
@@ -41,10 +41,10 @@ export function registerHandler() {
 
           <p id="api-error" class="api-error"></p> 
 
-        <button type="submit" id="register-btn" class="btn btn-primary">Register</button>
+        <button type="submit" id="register-btn" class="btn btn--primary">Register</button>
         </form>
 
-        <div>Already have an account? <button id="to-login" class="btn btn-ghost">Login here</button></div>
+        <div>Already have an account? <button id="to-login" class="btn btn--ghost">Login here</button></div>
     </section>
 `;
 

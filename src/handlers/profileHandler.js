@@ -10,15 +10,31 @@ import { getUser } from "../utils/storage.js";
 import { escapeHtml } from "../utils/escapeHtml.js";
 import { getHashQueryParam } from "../utils/queryParams.js";
 
+/**
+ *  Safely escape text for HTML output, with an optional fallback for empty values
+ * @param {*} value The value to escape
+ * @param {*} fallback The fallback value to use if the input is empty
+ * @returns {string} The escaped text or the fallback
+ */
 function safeText(value, fallback = "") {
   if (value === null || value === undefined || value === "") return fallback;
   return escapeHtml(String(value));
 }
 
+/**
+ * Safely validate an image URL, returning an empty string if the URL is not valid
+ * @param {string} url The image URL to validate
+ * @returns {string} The original URL if valid, or an empty string if invalid
+ */
 function safeImg(url) {
   return url && typeof url === "string" ? url : "";
 }
 
+/**
+ * Get the counts of posts, followers, and following for a profile
+ * @param {Object} profile The profile object
+ * @returns {Object} An object containing the counts of posts, followers, and following
+ */
 function getCounts(profile) {
   const posts =
     profile?._count?.posts ??
@@ -35,6 +51,12 @@ function getCounts(profile) {
   return { posts, followers, following };
 }
 
+/**
+ * Check if the viewer is following the profile
+ * @param {Object} profile The profile object
+ * @param {string} viewerName The name of the viewer
+ * @returns {boolean} True if the viewer is following the profile, false otherwise
+ */
 function isFollowing(profile, viewerName) {
   if (!viewerName) return false;
 
@@ -42,6 +64,12 @@ function isFollowing(profile, viewerName) {
   return profile.followers.some((f) => f?.name === viewerName);
 }
 
+/**
+ * Render the posts for a profile
+ * @param {HTMLElement} container The container element to render the posts into
+ * @param {Array} posts The array of posts to render
+ * @returns {void}
+ */
 function renderPosts(container, posts) {
   if (!Array.isArray(posts) || posts.length === 0) {
     container.innerHTML = "<p>No posts yet.</p>";

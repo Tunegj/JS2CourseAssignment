@@ -8,7 +8,7 @@ const API_KEY = "apiKey";
  */
 export function saveSession({ accessToken, name, email }) {
   localStorage.setItem(TOKEN_KEY, accessToken);
-  localStorage.setItem(USER_KEY, JSON.stringify({ name, email }));
+  localStorage.setItem(USER_KEY, JSON.stringify({ name, email })); // stringify user data for storage
 }
 
 /**

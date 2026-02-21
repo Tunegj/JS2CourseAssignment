@@ -22,6 +22,7 @@ export async function feedHandler() {
       <div class="feed-actions">
         <button class="btn btn--secondary" id="my-profile-btn">My Profile</button>
         <button class="btn btn--primary" id="create-post-btn">+ Create New Post</button>
+        <button class="btn btn--danger" id="logout-btn">Logout</button>
       </div>
      
       <div id ="feed-content" aria-live="polite">Loading posts...</div>
@@ -37,6 +38,11 @@ export async function feedHandler() {
 
   document.getElementById("create-post-btn").addEventListener("click", () => {
     navigate("#/create");
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", () => {
+    localStorage.removeItem("user");
+    navigate("#/logout");
   });
 
   let allPosts = [];

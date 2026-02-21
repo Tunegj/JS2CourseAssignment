@@ -51,7 +51,7 @@ async function request(
     );
   }
 
-  return data.data ?? data;
+  return data.data ?? data; // Return the 'data' property if it exists, otherwise return the whole response
 }
 
 /**
