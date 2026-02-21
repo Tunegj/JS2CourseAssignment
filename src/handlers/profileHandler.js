@@ -7,6 +7,7 @@ import {
   unfollowProfile,
   updateProfile,
 } from "../api/profiles.js";
+import { isValidUrl } from "../utils/validators.js";
 import { getUser } from "../utils/storage.js";
 import { escapeHtml } from "../utils/escapeHtml.js";
 import { getHashQueryParam } from "../utils/queryParams.js";
@@ -28,7 +29,8 @@ function safeText(value, fallback = "") {
  * @returns {string} The original URL if valid, or an empty string if invalid
  */
 function safeImg(url) {
-  return url && typeof url === "string" ? url : "";
+  const cleanUrl = String(url || "").trim();
+  return isValidUrl(cleanUrl) ? cleanUrl : "";
 }
 
 /**
@@ -94,12 +96,11 @@ function renderPosts(container, posts) {
 }
 
 /**
- * Optional helper to build media objects, ensuring URLs are valid and alt text is provided
+ * Optional helper to build media objects, ensuring URLs are valid
  * @param {string} url
- * @param {string} alt
  * @returns {{url:string, alt:string}|undefined} A media object or undefined if the URL is invalid
  */
-function buildMedia(url, alt) {
+function buildMedia(url) {
   const cleanUrl = String(url || "").trim();
   if (!cleanUrl) return undefined;
 
@@ -109,7 +110,7 @@ function buildMedia(url, alt) {
     return undefined;
   }
 
-  return { url: cleanUrl, alt: String(alt || "").trim() };
+  return { url: cleanUrl, alt: "" };
 }
 
 /**
@@ -164,9 +165,6 @@ export async function profileHandler() {
     const showFollowButton = !!nameParam && !isMe;
 
     const avatarUrl = safeImg(profile?.avatar?.url);
-    const avatarAlt = safeText(
-      profile?.avatar?.alt ?? `${profile?.name ?? "User"}'s avatar`,
-    );
     const bannerUrl = safeImg(profile?.banner?.url);
 
     const { posts, followers, following } = getCounts(profile);
@@ -179,7 +177,7 @@ export async function profileHandler() {
           <div class="profile__avatar">
             ${
               avatarUrl
-                ? `<img src="${avatarUrl}" alt="${avatarAlt}" />`
+                ? `<img src="${avatarUrl}" alt="" />`
                 : `<div class="profile__avatar-fallback" aria-hidden="true"></div>`
             }
           </div>
@@ -300,10 +298,14 @@ export async function profileHandler() {
     const isMe = !!viewer?.name && profile?.name === viewer.name;
     if (!isMe) return renderView(profile);
 
-    const bioValue = safeText(profile?.bio, "");
-    const avatarUrlValue = safeText(profile?.avatar?.url, "");
-    const avatarAltValue = safeText(profile?.avatar?.alt, "");
-    const bannerUrlValue = safeText(profile?.banner?.url, "");
+    function safeValue(value, fallback = "") {
+      if (value === null || value === undefined) return fallback;
+      return String(value);
+    }
+
+    const bioValue = safeValue(profile?.bio, "");
+    const avatarUrlValue = safeValue(profile?.avatar?.url, "");
+    const bannerUrlValue = safeValue(profile?.banner?.url, "");
 
     profileContent.innerHTML = `
     <div class="profile-edit">
@@ -325,7 +327,6 @@ export async function profileHandler() {
             <label>
               Avatar URL
               <input id="edit-avatar-url" type="url" value="${avatarUrlValue}" placeholder="https://..." />
-              <input id="edit-avatar-alt" type="text" value="${avatarAltValue}" placeholder="Alt text for the avatar image" />
             </label>
           </fieldset>
 
@@ -355,14 +356,13 @@ export async function profileHandler() {
       const bio = document.querySelector("#edit-bio").value.trim();
       const bannerUrl = document.querySelector("#edit-banner-url").value.trim();
       const avatarUrl = document.querySelector("#edit-avatar-url").value.trim();
-      const avatarAlt = document.querySelector("#edit-avatar-alt").value.trim();
 
       const payload = {
         bio: bio || "",
       };
 
-      const avatar = buildMedia(avatarUrl, avatarAlt);
-      const banner = buildMedia(bannerUrl, "");
+      const avatar = buildMedia(avatarUrl);
+      const banner = buildMedia(bannerUrl);
 
       if (avatar) payload.avatar = avatar;
       if (banner) payload.banner = banner;

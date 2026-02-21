@@ -5,6 +5,7 @@ import {
   isValidEmail,
   isValidPassword,
   isValidBio,
+  isValidUrl,
 } from "../utils/validators.js";
 import { setFieldError, clearFieldErrors } from "../utils/formErrors.js";
 import { getApiErrorMessage } from "../utils/apiErrors.js";
@@ -37,8 +38,17 @@ export function registerHandler() {
             <textarea id="bio" rows="6" placeholder="Tell us about yourself...(optional)" ></textarea>
             <p id="bio-error" class="field-error"></p>
           </label>
-          
 
+          <label for="avatar-url">(Optional) Avatar URL:
+            <input type="url" id="avatar-url" placeholder="https://..." />
+            <p id="avatar-url-error" class="field-error"></p>
+          </label>
+
+          <label for="banner-url">(Optional) Banner URL:
+            <input type="url" id="banner-url" placeholder="https://..." />
+            <p id="banner-url-error" class="field-error"></p>
+          </label>
+          
           <p id="api-error" class="api-error"></p> 
 
         <button type="submit" id="register-btn" class="btn btn--primary">Register</button>
@@ -55,13 +65,22 @@ export function registerHandler() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    clearFieldErrors(["username", "email", "password", "bio"]);
+    clearFieldErrors([
+      "username",
+      "email",
+      "password",
+      "bio",
+      "avatar-url",
+      "banner-url",
+    ]);
     apiError.textContent = "";
 
     const name = document.querySelector("#username").value.trim();
     const email = document.querySelector("#email").value.trim();
     const password = document.querySelector("#password").value.trim();
     const bio = document.querySelector("#bio").value.trim();
+    const avatarUrl = document.querySelector("#avatar-url").value.trim();
+    const bannerUrl = document.querySelector("#banner-url").value.trim();
 
     let hasError = false;
 
@@ -94,6 +113,14 @@ export function registerHandler() {
       setFieldError("bio", "Bio must be 160 characters or less.");
       hasError = true;
     }
+    if (avatarUrl && !isValidUrl(avatarUrl)) {
+      setFieldError("avatar-url", "Avatar URL must be a valid URL.");
+      hasError = true;
+    }
+    if (bannerUrl && !isValidUrl(bannerUrl)) {
+      setFieldError("banner-url", "Banner URL must be a valid URL.");
+      hasError = true;
+    }
 
     if (hasError) return;
 
@@ -102,7 +129,16 @@ export function registerHandler() {
 
     try {
       const payload = { name, email, password };
+
       if (bio) payload.bio = bio; // Only include bio if it's provided
+
+      if (avatarUrl) {
+        payload.avatar = { url: avatarUrl, alt: "" };
+      }
+
+      if (bannerUrl) {
+        payload.banner = { url: bannerUrl, alt: "" };
+      }
 
       await registerUser(payload);
 
