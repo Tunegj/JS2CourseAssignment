@@ -15,7 +15,7 @@ export async function singlePostHandler(postId) {
 
   app.innerHTML = `
     <section class="single-post">
-      <button id="back-to-feed" class="btn btn--ghost">← Back</button>
+      <button id="back-to-feed" class="btn btn--ghost" type="button">← Back</button>
       <h1 id="post-heading">Post</h1>
       <div id="post-content">Loading post...</div>
     </section>
@@ -32,6 +32,10 @@ export async function singlePostHandler(postId) {
   let isOwner = false;
   let isEditing = false;
 
+  /**
+   * Render the post content based on the current state (viewing or editing)
+   * @returns {void}
+   */
   function render() {
     if (!post) return;
 
@@ -40,7 +44,9 @@ export async function singlePostHandler(postId) {
       ? escapeHtml(authorNameRaw)
       : "Unknown Author";
 
-    postHeading.textContent = `Showing ${authorName}'s Post`;
+    postHeading.textContent = authorNameRaw
+      ? `Showing ${authorNameRaw}'s Post`
+      : "Post";
 
     if (isEditing) {
       postContent.innerHTML = `
@@ -51,7 +57,7 @@ export async function singlePostHandler(postId) {
           <label>Body:
           <textarea id="edit-body" rows="6">${post.body ? escapeHtml(post.body) : ""}</textarea>
           </label>
-          <p id="error-message" style="color: red;"></p>
+          <p id="error-message" class="form-error" role="alert"></p>
           <button type="submit" class="btn btn--primary" id="save-btn">Save</button>
           <button type="button" class="btn btn--danger" id="cancel-btn">Cancel</button>
           </form>
@@ -67,7 +73,7 @@ export async function singlePostHandler(postId) {
     <article class="post" data-id="${post.id}">
         <h3>${title}</h3>
         <p><strong> By:</strong>
-        <button type="button" class="post__author" data-profile="${authorNameRaw ? escapeHtml(authorNameRaw) : ""}">${authorName}</button>
+        <button type="button" class="post__author" data-profile="${encodeURIComponent(authorNameRaw)}">${authorName}</button>
         </p>
         <small>${escapeHtml(created)}</small>
         ${body ? `<p>${body}</p>` : ""}
@@ -87,7 +93,8 @@ export async function singlePostHandler(postId) {
     if (profileBtn) {
       e.stopPropagation();
 
-      const name = profileBtn.dataset.profile;
+      const name = decodeURIComponent(profileBtn.dataset.profile);
+
       if (name) {
         navigate(`#/profile?name=${encodeURIComponent(name)}`);
       }
@@ -99,6 +106,7 @@ export async function singlePostHandler(postId) {
     const cancelBtn = e.target.closest("#cancel-btn");
 
     if (editBtn) {
+      if (!isOwner) return;
       isEditing = true;
       render();
       return;
@@ -143,9 +151,7 @@ export async function singlePostHandler(postId) {
     saveBtn.textContent = "Saving...";
 
     try {
-      const payload = { title };
-      if (body) payload.body = body;
-
+      const payload = { title, body };
       const updated = await updatePost(postId, payload);
 
       post = { ...post, ...updated };

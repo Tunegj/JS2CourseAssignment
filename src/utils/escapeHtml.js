@@ -1,5 +1,6 @@
 export function escapeHtml(str) {
-  return String(str)
+  const value = String(str ?? "");
+  return value
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
