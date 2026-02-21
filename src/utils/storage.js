@@ -7,8 +7,11 @@ const API_KEY = "apiKey";
  * @param {{ accessToken: string, name: string, email: string }} session
  */
 export function saveSession({ accessToken, name, email }) {
-  localStorage.setItem(TOKEN_KEY, accessToken);
-  localStorage.setItem(USER_KEY, JSON.stringify({ name, email })); // stringify user data for storage
+  localStorage.setItem(TOKEN_KEY, String(accessToken || "")); // ensure token is a string
+  localStorage.setItem(
+    USER_KEY,
+    JSON.stringify({ name: String(name || ""), email: String(email || "") }),
+  ); // stringify user data for storage
 }
 
 /**
@@ -16,7 +19,7 @@ export function saveSession({ accessToken, name, email }) {
  * @param {string} key - The API key to save
  */
 export function saveApiKey(key) {
-  localStorage.setItem(API_KEY, key);
+  localStorage.setItem(API_KEY, String(key || "")); // ensure API key is a string
 }
 
 /**
@@ -40,7 +43,14 @@ export function getToken() {
  */
 export function getUser() {
   const raw = localStorage.getItem(USER_KEY);
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    clearSession();
+    return null;
+  }
 }
 
 /**
