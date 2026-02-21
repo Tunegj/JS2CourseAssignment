@@ -22,7 +22,9 @@ export function navigate(hash) {
  * @returns {string}
  */
 function getRoute() {
-  return window.location.hash || "#/login";
+  const hash = window.location.hash;
+  if (!hash || hash === "#") return "#/login";
+  return hash;
 }
 
 /**
@@ -50,7 +52,7 @@ function authGuard() {
 }
 
 /**
- *  Protection guard for routes that should only be accessible to guests (not logged in) .eg login and register pages
+ * Protection guard for routes that should only be accessible to guests (not logged in) .eg login and register pages
  * @returns {boolean} - True if the user is a guest, false otherwise
  */
 function guestGuard() {
@@ -70,46 +72,52 @@ export function renderRoute() {
   // Extract the path without query parameters for routing - array destructuring to get the first element (the path)
   const [path] = route.split("?");
 
-  switch (path) {
-    case "#/login":
-      if (!guestGuard()) return;
-      loginHandler();
-      break;
-    case "#/register":
-      if (!guestGuard()) return;
-      registerHandler();
-      break;
-    case "#/feed":
-      if (!authGuard()) return;
-      feedHandler();
-      break;
-    case "#/create":
-      if (!authGuard()) return;
-      createPostHandler();
-      break;
-    case "#/post":
-      if (!authGuard()) return;
+  try {
+    switch (path) {
+      case "#/login":
+        if (!guestGuard()) return;
+        loginHandler();
+        break;
+      case "#/register":
+        if (!guestGuard()) return;
+        registerHandler();
+        break;
+      case "#/feed":
+        if (!authGuard()) return;
+        feedHandler();
+        break;
+      case "#/create":
+        if (!authGuard()) return;
+        createPostHandler();
+        break;
+      case "#/post": {
+        if (!authGuard()) return;
 
-      const postId = getHashQueryParam("id"); //extract the post ID from the query parameters (e.g., "#/post?id=123")
+        const postId = getHashQueryParam("id");
+        if (!postId) {
+          navigate("#/feed");
+          return;
+        }
 
-      if (!postId) {
-        // If no post ID is provided, redirect to the feed page
-        navigate("#/feed");
-        return;
+        singlePostHandler(postId);
+        break;
       }
-      singlePostHandler(postId);
-      break;
-    case "#/logout":
-      clearSession();
-      navigate("#/login");
-      break;
-    case "#/profile":
-      if (!authGuard()) return;
-      profileHandler();
-      break;
-    default:
-      navigate("#/login");
-      break;
+      case "#/logout":
+        clearSession();
+        navigate("#/login");
+        break;
+      case "#/profile":
+        if (!authGuard()) return;
+        profileHandler();
+        break;
+      default:
+        navigate(hasValidSession() ? "#/feed" : "#/login");
+        return;
+    }
+  } catch (error) {
+    console.error("Error rendering route:", error);
+    clearSession();
+    navigate("#/login");
   }
 }
 

@@ -102,6 +102,13 @@ function renderPosts(container, posts) {
 function buildMedia(url, alt) {
   const cleanUrl = String(url || "").trim();
   if (!cleanUrl) return undefined;
+
+  try {
+    new URL(cleanUrl);
+  } catch {
+    return undefined;
+  }
+
   return { url: cleanUrl, alt: String(alt || "").trim() };
 }
 
@@ -120,14 +127,21 @@ export async function profileHandler() {
 
   app.innerHTML = `
     <section class="profile-page">
+    <header class="profile-page__header">
         <button id="back-to-feed" class="btn btn--ghost" type="button">← Back</button>
         <h1>${safeText(pageTitle)}</h1>
+    <button class="btn btn--danger" id="logout-btn">Logout</button>
+    </header>
         <div id="profile-content">Loading profile...</div>
     </section>
 `;
 
   document.querySelector("#back-to-feed").addEventListener("click", () => {
     navigate("#/feed");
+  });
+
+  document.querySelector("#logout-btn").addEventListener("click", () => {
+    navigate("#/logout");
   });
 
   const profileContent = document.querySelector("#profile-content");

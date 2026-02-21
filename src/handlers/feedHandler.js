@@ -41,7 +41,6 @@ export async function feedHandler() {
   });
 
   document.getElementById("logout-btn").addEventListener("click", () => {
-    localStorage.removeItem("user");
     navigate("#/logout");
   });
 
@@ -199,6 +198,6 @@ export async function feedHandler() {
     allPosts = Array.isArray(posts) ? posts : [];
     renderPosts(allPosts);
   } catch (error) {
-    feedContent.innerHTML = `<p style="color: red;">Error loading posts: ${error.message}</p>`;
+    feedContent.innerHTML = `<p class="api-error">Error loading posts: ${error.message}</p>`;
   }
 }
