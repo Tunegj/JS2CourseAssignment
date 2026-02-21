@@ -1,6 +1,6 @@
-import { BASE_URL } from "./config";
-import { getApiErrorMessage } from "../utils/apiErrors";
-import { getApiKey, getToken, getUser } from "../utils/storage";
+import { BASE_URL } from "./config.js";
+import { getApiErrorMessage } from "../utils/apiErrors.js";
+import { getApiKey, getToken, getUser } from "../utils/storage.js";
 
 /**
  *  Create the necessary authentication headers for API requests
@@ -8,14 +8,15 @@ import { getApiKey, getToken, getUser } from "../utils/storage";
  * @returns {Object} - The complete headers object
  */
 function createAuthHeaders(extraHeaders = {}) {
+  const headers = { ...extraHeaders };
+
   const token = getToken();
   const apiKey = getApiKey();
 
-  return {
-    Authorization: `Bearer ${token}`,
-    "X-Noroff-API-Key": apiKey,
-    ...extraHeaders,
-  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (apiKey) headers["X-Noroff-API-Key"] = apiKey;
+
+  return headers;
 }
 
 /**
@@ -52,7 +53,12 @@ async function request(path, options = {}, fallbackMessage = "Request failed") {
 
   if (response.status === 204) return null;
 
-  const data = await response.json();
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -63,7 +69,7 @@ async function request(path, options = {}, fallbackMessage = "Request failed") {
     );
   }
 
-  return data.data ?? data;
+  return data?.data ?? data;
 }
 
 /**

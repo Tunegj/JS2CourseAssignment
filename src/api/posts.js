@@ -8,14 +8,15 @@ import { getApiErrorMessage } from "../utils/apiErrors.js";
  * @returns {Object} The headers object.
  */
 function createAuthHeaders(extraHeaders = {}) {
+  const headers = { ...extraHeaders };
+
   const token = getToken();
   const apiKey = getApiKey();
 
-  return {
-    Authorization: `Bearer ${token}`,
-    "X-Noroff-Api-Key": apiKey,
-    ...extraHeaders,
-  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (apiKey) headers["X-Noroff-API-Key"] = apiKey;
+
+  return headers;
 }
 
 /**
@@ -41,9 +42,14 @@ async function request(
     throw new Error("Network error: Unable to connect to the server.");
   }
 
-  if (response.status === 204) return null; // No content
+  if (response.status === 204) return null;
 
-  const data = await response.json();
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -51,7 +57,7 @@ async function request(
     );
   }
 
-  return data.data ?? data; // Return the 'data' property if it exists, otherwise return the whole response
+  return data?.data ?? data;
 }
 
 /**

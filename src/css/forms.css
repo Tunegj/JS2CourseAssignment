@@ -3,18 +3,42 @@ form {
   gap: 1rem;
 }
 
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 500;
+}
+
 input,
 textarea {
+  width: 100%;
   padding: 0.6rem;
   border: 1px solid #ccc;
   border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+textarea {
+  resize: vertical;
 }
 
 input:focus,
 textarea:focus {
-  outline: none;
+  outline: solid 2px #687a6f;
+  outline-offset: 2px;
   border-color: #687a6f;
-  box-shadow: 0 0 5px rgba(104, 122, 111, 0.5);
+  box-shadow: 0 0 3px rgba(104, 122, 111, 0.2);
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+legend {
+  padding: 0 0.5rem;
+  font-weight: 600;
 }
 
 .field-error,
@@ -22,4 +46,8 @@ textarea:focus {
   color: #c62828;
   margin-top: 0.25rem;
   font-size: 0.9rem;
+}
+
+.field-error {
+  min-height: 1.1em;
 }

@@ -22,13 +22,18 @@ export async function registerUser(userData) {
     throw new Error("Network error: Unable to connect to the server.");
   }
 
-  const data = await response.json();
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
 
   if (!response.ok) {
     throw new Error(getApiErrorMessage(data, "Registration failed"));
   }
 
-  return data;
+  return data?.data ?? data;
 }
 
 /**
@@ -52,10 +57,15 @@ export async function loginUser(credentials) {
     throw new Error("Network error: Unable to connect to the server.");
   }
 
-  const data = await response.json();
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
 
   if (!response.ok) {
     throw new Error(getApiErrorMessage(data, "Login failed"));
   }
-  return data.data ?? data; // Handle both { data: {...} } and { ... } response formats
+  return data?.data ?? data; // Handle both { data: {...} } and { ... } response formats
 }

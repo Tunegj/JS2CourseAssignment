@@ -14,8 +14,8 @@ export async function singlePostHandler(postId) {
   const openInEditMode = getHashQueryParam("edit") === "true";
 
   app.innerHTML = `
-    <section class="single-post">
-      <button id="back-to-feed" class="btn btn--ghost" type="button">← Back</button>
+    <section class="post container">
+      <button id="back-to-feed" class="btn btn--icon" type="button">← Back</button>
       <h1 id="post-heading">Post</h1>
       <div id="post-content">Loading post...</div>
     </section>

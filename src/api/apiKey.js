@@ -1,5 +1,5 @@
-import { getToken } from "../utils/storage.js";
 import { BASE_URL } from "./config.js";
+import { getApiErrorMessage } from "../utils/apiErrors.js";
 
 /**
  * Creates a new API key using the provided access token.
@@ -11,21 +11,34 @@ export async function createApiKey(accessToken) {
     throw new Error("Please log in to create an API key.");
   }
 
-  const response = await fetch(`${BASE_URL}/auth/create-api-key`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+  let response;
 
-  const data = await response.json();
+  try {
+    response = await fetch(`${BASE_URL}/auth/create-api-key`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  } catch {
+    throw new Error("Network error: Unable to connect to the server.");
+  }
+
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
 
   if (!response.ok) {
     throw new Error(
-      data.errors?.[0]?.message ??
-        `Failed to create API key (${response.status})`,
+      getApiErrorMessage(data, `Failed to create API key (${response.status})`),
     );
   }
 
-  return data.data.key;
+  const key = data?.data?.key;
+  if (!key) throw new Error("API key not found in response.");
+
+  return key;
 }

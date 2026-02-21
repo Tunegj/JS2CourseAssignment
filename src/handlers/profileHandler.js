@@ -122,9 +122,9 @@ export async function profileHandler() {
   const pageTitle = profileName ? `${profileName}'s Profile` : "My Profile";
 
   app.innerHTML = `
-    <section class="profile-page">
+    <section class="profile container">
     <header class="profile-page__header">
-        <button id="back-to-feed" class="btn btn--ghost" type="button">← Back</button>
+        <button id="back-to-feed" class="btn btn--icon" type="button">← Back</button>
         <h1>${safeText(pageTitle)}</h1>
     <button class="btn btn--danger" id="logout-btn">Logout</button>
     </header>
@@ -206,7 +206,7 @@ export async function profileHandler() {
         </dl>
       </header>
 
-      <section class="profile-posts">
+      <section class="profile-posts container">
         <h3 class="profile-posts__title">${isMe ? "My Posts" : "Posts"}</h3>
         <div id="profile-posts" class="profile-posts__list" aria-live="polite">
           Loading posts...

@@ -12,20 +12,24 @@ export function loginHandler() {
   const app = document.querySelector("#app");
 
   app.innerHTML = `
-    <section>
-        <h1>Login</h1>
+    <section class="login container">
+     <h1>Login</h1>
      <form id="login-form" class="form" novalidate>
       <label for="email">Email:
-      <input type="email" id="email" required />
-      <p id="email-error" class="field-error"></p>
+        <input type="email" id="email" required />
+        <p id="email-error" class="field-error"></p>
       </label>
+
       <label for="password">Password:
-      <input type="password" id="password" required />
-      <p id="password-error" class="field-error"></p>
+        <input type="password" id="password" required />
+        <p id="password-error" class="field-error"></p>
       </label>
+
       <p id="api-error" class="api-error" role="alert"></p>
+
       <button id="login-btn" class="btn btn--primary" type="submit">Login</button>
     </form>
+
     <p>Don't have an account? <button id="to-register" class="btn btn--ghost">Go to register</button></p>
     </section>
 `;
@@ -68,7 +72,6 @@ export function loginHandler() {
 
     try {
       const result = await loginUser({ email, password });
-
       const session = result.data ?? result;
 
       saveSession({

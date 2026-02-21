@@ -15,15 +15,19 @@ export function createPostHandler() {
   const app = document.getElementById("app");
 
   app.innerHTML = `
-    <section class="create-post">
+    <section class="create-post container">
       <h2>Create New Post</h2>
 
       <form id="create-post-form" novalidate>
+      <label for="post-title">Title</label>
         <input type="text" id="post-title" placeholder="Title"/>
-          <p id="post-title-error" class= "field-error"></p>
-        <textarea id="post-body" rows="5" placeholder="What's on your mind?"></textarea>
+       <p id="post-title-error" class= "field-error"></p>
 
-        <p id="api-error" class="api-error"></p>
+       <label for="post-body">Content</label>
+        <textarea id="post-body" rows="5" placeholder="What's on your mind?"></textarea>
+        <p id="post-body-error" class="field-error"></p>
+
+        <p id="api-error" class="api-error" role="alert"></p>
 
         <button type="submit" class="btn btn--primary" id="submit-post">Publish</button>
         <button type="button" class="btn btn--danger" id="cancel-post">Cancel</button>

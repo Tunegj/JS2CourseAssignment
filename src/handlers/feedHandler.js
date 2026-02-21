@@ -11,7 +11,7 @@ export async function feedHandler() {
   const app = document.querySelector("#app");
 
   app.innerHTML = `
-    <section class="feed">
+    <section class="feed container">
       <header class="feed-header"> 
         <h1 aria-label="Feed" >Feed</h1>
       </header>
@@ -20,9 +20,9 @@ export async function feedHandler() {
         <!-- <button id="feed-search-clear" class="btn btn--danger" type="button">Clear</button> -->
       </div>
       <div class="feed-actions">
-        <button class="btn btn--secondary" id="my-profile-btn">My Profile</button>
-        <button class="btn btn--primary" id="create-post-btn">+ Create New Post</button>
-        <button class="btn btn--danger" id="logout-btn">Logout</button>
+        <button class="btn btn--secondary" id="my-profile-btn" type="button">My Profile</button>
+        <button class="btn btn--primary" id="create-post-btn" type="button">+ Create New Post</button>
+        <button class="btn btn--danger" id="logout-btn" type="button">Logout</button>
       </div>
      
       <div id ="feed-content" aria-live="polite">Loading posts...</div>
@@ -110,11 +110,11 @@ export async function feedHandler() {
         <article class="post" data-id="${post.id}">
         <h3>${title}</h3>
         
-        <button type="button" class="post__author" data-profile="${encodeURIComponent(authorRaw)}">Author: ${authorName}</button>
+        <button type="button" class="post__author" data-profile="${authorRaw}">Author: ${authorName}</button>
        ${body ? `<p>${body}</p>` : ""}
         <small>Posted:  ${escapeHtml(created)}</small>
-        ${isAuthor ? `<button class="btn btn--danger" data-action="delete">Delete</button>` : ""}
-        ${isAuthor ? `<button class="btn btn--primary" data-action="edit">Edit</button>` : ""}
+        ${isAuthor ? `<button class="btn btn--danger" data-action="delete" type="button">Delete</button>` : ""}
+        ${isAuthor ? `<button class="btn btn--primary" data-action="edit" type="button">Edit</button>` : ""}
       </article>
     `;
       })

@@ -17,7 +17,7 @@ export function registerHandler() {
   const app = document.querySelector("#app");
 
   app.innerHTML = `
-    <section>
+    <section class="register container">
         <h1>Register</h1>
         
         <form id="register-form" class="form" novalidate>
