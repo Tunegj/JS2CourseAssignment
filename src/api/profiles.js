@@ -18,6 +18,11 @@ function createAuthHeaders(extraHeaders = {}) {
   };
 }
 
+/**
+ * Encode and validate a profile name for URL usage
+ * @param {string} name - The profile name to encode
+ * @returns {string} - The encoded profile name
+ */
 function encodeName(name) {
   if (!name) throw new Error("Missing profile name.");
 
@@ -45,6 +50,8 @@ async function request(path, options = {}, fallbackMessage = "Request failed") {
     );
   }
 
+  if (response.status === 204) return null;
+
   const data = await response.json();
 
   if (!response.ok) {
@@ -61,12 +68,11 @@ async function request(path, options = {}, fallbackMessage = "Request failed") {
 
 /**
  * Fetch a profile by its name
+ * Includes related data such as posts, followers, and following if available
  * @param {string} name - The name of the profile
  * @returns {Promise<Object>} - The profile data
  */
 export async function getProfileByName(name) {
-  if (!name) throw new Error("Missing profile name.");
-
   const safeName = encodeName(name);
 
   return request(
@@ -76,9 +82,13 @@ export async function getProfileByName(name) {
   );
 }
 
+/**
+ * Fetch posts for a specific profile
+ * @param {string} name - The name of the profile
+ * @param {{limit?: number, page?: number}} options - Pagination options
+ * @returns {Promise<Array>}
+ */
 export async function getProfilePosts(name, { limit = 20, page = 1 } = {}) {
-  if (!name) throw new Error("Missing profile name.");
-
   const safeName = encodeName(name);
 
   return request(
@@ -99,9 +109,12 @@ export async function getMyProfile() {
   return getProfileByName(user.name);
 }
 
+/**
+ * Follow a specific profile
+ * @param {string} name - The name of the profile to follow
+ * @returns {Promise<Object | null>}
+ */
 export async function followProfile(name) {
-  if (!name) throw new Error("Missing profile name.");
-
   const safeName = encodeName(name);
 
   return request(
@@ -111,10 +124,14 @@ export async function followProfile(name) {
   );
 }
 
+/**
+ * Unfollow a specific profile
+ * @param {string} name - The name of the profile to unfollow
+ * @returns {Promise<Object | null>}
+ */
 export async function unfollowProfile(name) {
-  if (!name) throw new Error("Missing profile name.");
-
   const safeName = encodeName(name);
+
   return request(
     `/social/profiles/${safeName}/unfollow`,
     { method: "PUT" },
@@ -122,13 +139,20 @@ export async function unfollowProfile(name) {
   );
 }
 
+/**
+ * Update a profile (bio/avatar/banner)
+ * @param {string} name - The name of the profile to update
+ * @param {Object} payload - The profile data to update
+ * @returns {Promise<Object | null>}
+ */
 export async function updateProfile(name, payload) {
-  if (!name) throw new Error("Missing profile name.");
+  const safeName = encodeName(name);
+
   if (!payload || typeof payload !== "object")
     throw new Error("Invalid profile data.");
 
   return request(
-    `/social/profiles/${encodeURIComponent(name)}`,
+    `/social/profiles/${safeName}`,
     {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

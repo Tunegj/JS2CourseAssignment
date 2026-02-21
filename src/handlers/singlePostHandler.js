@@ -52,8 +52,8 @@ export async function singlePostHandler(postId) {
           <textarea id="edit-body" rows="6">${post.body ? escapeHtml(post.body) : ""}</textarea>
           </label>
           <p id="error-message" style="color: red;"></p>
-          <button type="submit" class="btn btn-primary" id="save-btn">Save</button>
-          <button type="button" class="btn btn-danger" id="cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn--primary" id="save-btn">Save</button>
+          <button type="button" class="btn btn--danger" id="cancel-btn">Cancel</button>
           </form>
         `;
       return;
