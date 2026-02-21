@@ -110,7 +110,7 @@ export async function feedHandler() {
         <article class="post" data-id="${post.id}">
         <h3>${title}</h3>
         
-        <button type="button" class="post__author" data-profile="${authorRaw}">Author: ${authorName}</button>
+        <button type="button" class="post__author" data-profile="${encodeURIComponent(authorRaw)}">Author: ${authorName}</button>
        ${body ? `<p>${body}</p>` : ""}
         <small>Posted:  ${escapeHtml(created)}</small>
         ${isAuthor ? `<button class="btn btn--danger" data-action="delete">Delete</button>` : ""}
@@ -198,6 +198,6 @@ export async function feedHandler() {
     allPosts = Array.isArray(posts) ? posts : [];
     renderPosts(allPosts);
   } catch (error) {
-    feedContent.innerHTML = `<p class="api-error">Error loading posts: ${error.message}</p>`;
+    feedContent.innerHTML = `<p class="api-error" role="alert">Error loading posts: ${escapeHtml(error.message ?? "Unknown error")}</p>`;
   }
 }
