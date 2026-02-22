@@ -8,6 +8,17 @@ import { profileHandler } from "./handlers/profileHandler.js";
 import { getToken, getApiKey, clearSession } from "./utils/storage.js";
 import { getHashQueryParam } from "./utils/queryParams.js";
 
+let prevousHash = null;
+let currentHash = null;
+
+/**
+ * Simple SPA router that listens to hash changes and renders the appropriate view
+ * @returns
+ */
+export function getPreviousHash() {
+  return prevousHash;
+}
+
 /**
  * Navigate to a new route by updating the URL hash
  * @param {string} hash - The new hash to navigate to (e.g., "#/login")
@@ -68,6 +79,9 @@ function guestGuard() {
  */
 export function renderRoute() {
   const route = getRoute();
+
+  prevousHash = currentHash;
+  currentHash = route;
 
   // Extract the path without query parameters for routing - array destructuring to get the first element (the path)
   const [path] = route.split("?");

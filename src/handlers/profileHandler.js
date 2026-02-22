@@ -1,4 +1,4 @@
-import { navigate } from "../router.js";
+import { navigate, getPreviousHash } from "../router.js";
 import {
   getMyProfile,
   getProfileByName,
@@ -133,7 +133,12 @@ export async function profileHandler() {
 `;
 
   document.querySelector("#back-to-feed").addEventListener("click", () => {
-    window.history.length > 1 ? window.history.back() : navigate("#/feed");
+    const prev = getPreviousHash();
+    if (prev && prev !== window.location.hash) {
+      navigate(prev);
+    } else {
+      navigate("#/feed");
+    }
   });
 
   document.querySelector("#logout-btn").addEventListener("click", () => {
@@ -156,7 +161,9 @@ export async function profileHandler() {
   }
 
   function renderView(profile) {
-    const isMe = !!viewer?.name && profile?.name === viewer.name;
+    const isMe =
+      !!viewer?.name &&
+      profile?.name.toLowerCase() === viewer.name.toLowerCase();
     const showFollowButton = !!nameParam && !isMe;
 
     const avatarUrl = safeImg(profile?.avatar?.url);
@@ -208,6 +215,7 @@ export async function profileHandler() {
 
       <section class="profile-posts container">
         <h3 class="profile-posts__title">${isMe ? "My Posts" : "Posts"}</h3>
+        ${isMe ? `<button class="btn btn--primary" id="create-post-btn" type="button">+ Create New Post</button>` : ""}
         <div id="profile-posts" class="profile-posts__list" aria-live="polite">
           Loading posts...
         </div>
@@ -215,6 +223,7 @@ export async function profileHandler() {
     `;
 
     const postsContainer = document.querySelector("#profile-posts");
+
     postsContainer.addEventListener("click", (e) => {
       const card = e.target.closest(".post");
       if (!card) return;
@@ -228,6 +237,13 @@ export async function profileHandler() {
             ${safeText(error?.message ?? "Failed to load posts. Please try again.")}
             </p>`;
       });
+
+    const newPostBtn = document.querySelector("#create-post-btn");
+    if (newPostBtn) {
+      newPostBtn.addEventListener("click", () => {
+        navigate("#/create");
+      });
+    }
 
     if (isMe) {
       const editBtn = document.querySelector("#edit-profile-btn");

@@ -1,4 +1,4 @@
-import { navigate } from "../router.js";
+import { navigate, getPreviousHash } from "../router.js";
 import { getPostById, deletePost, updatePost } from "../api/posts.js";
 import { getUser } from "../utils/storage.js";
 import { getHashQueryParam } from "../utils/queryParams.js";
@@ -22,7 +22,12 @@ export async function singlePostHandler(postId) {
 `;
 
   document.querySelector("#back-to-feed").addEventListener("click", () => {
-    navigate("#/feed");
+    const prev = getPreviousHash();
+    if (prev && prev !== window.location.hash) {
+      navigate(prev);
+    } else {
+      navigate("#/feed");
+    }
   });
 
   const postHeading = document.querySelector("#post-heading");
