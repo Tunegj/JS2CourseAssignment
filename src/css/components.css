@@ -136,9 +136,3 @@
   gap: 0.5rem;
   flex-wrap: wrap;
 }
-
-.profile-edit__fieldset {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 0.75rem;
-}
