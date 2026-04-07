@@ -6,13 +6,15 @@
 export function setFieldError(fieldId, message) {
   const errorEl = document.querySelector(`#${fieldId}-error`);
   const inputEl = document.getElementById(fieldId);
+  const hasError = Boolean(message);
 
   if (errorEl) {
     errorEl.textContent = message ?? "";
   }
 
   if (inputEl) {
-    inputEl.setAttribute("aria-invalid", message ? "true" : "false");
+    inputEl.setAttribute("aria-invalid", hasError ? "true" : "false");
+    inputEl.classList.toggle("is-invalid", hasError);
   }
 }
 

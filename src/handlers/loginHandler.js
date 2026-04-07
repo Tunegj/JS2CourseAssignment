@@ -12,27 +12,65 @@ export function loginHandler() {
   const app = document.querySelector("#app");
 
   app.innerHTML = `
-    <section class="login container">
-     <h1>Login</h1>
-     <form id="login-form" class="form" novalidate>
-      <label for="email">Email:
-        <input type="email" id="email" required />
-        <p id="email-error" class="field-error"></p>
-      </label>
+    <section class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+          <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+              <h1 class="h2 mb-4 text-center">Login</h1>
 
-      <label for="password">Password:
-        <input type="password" id="password" required />
-        <p id="password-error" class="field-error"></p>
-      </label>
+              <form id="login-form" novalidate>
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    required
+                  />
+                  <div id="email-error" class="invalid-feedback"></div>
+                </div>
 
-      <p id="api-error" class="api-error" role="alert"></p>
+                <div class="mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    class="form-control"
+                    required
+                  />
+                  <div id="password-error" class="invalid-feedback"></div>
+                </div>
 
-      <button id="login-btn" class="btn btn--primary" type="submit">Login</button>
-    </form>
+                <div
+                  id="api-error"
+                  class="alert alert-danger d-none"
+                  role="alert"
+                ></div>
 
-    <p>Don't have an account? <button id="to-register" class="btn btn--ghost">Go to register</button></p>
+                <div class="d-grid">
+                  <button id="login-btn" class="btn btn-primary" type="submit">
+                    Login
+                  </button>
+                </div>
+              </form>
+
+              <p class="mt-4 mb-0 text-center">
+                Don't have an account?
+                <button
+                  id="to-register"
+                  class="btn btn-link p-0 align-baseline"
+                  type="button"
+                >
+                  Go to register
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
-`;
+  `;
 
   const form = document.querySelector("#login-form");
   const loginBtn = document.querySelector("#login-btn");
