@@ -11,21 +11,23 @@ export async function feedHandler() {
   const app = document.querySelector("#app");
 
   app.innerHTML = `
-    <section class="feed container">
-      <header class="feed-header"> 
-        <h1 aria-label="Feed" >Feed</h1>
+    <section class="container py-4">
+
+      <header class="mb-4 text-center"> 
+        <h1 aria-label="Feed" class="h2" >Feed</h1>
       </header>
-      <div class ="feed-search">
-        <input id="feed-search-input" class="feed-search__input" type="search" placeholder="Search posts by title or author..." autoComplete="off"/>
-        <!-- <button id="feed-search-clear" class="btn btn--danger" type="button">Clear</button> -->
+
+      <div class ="mb-3">
+        <input id="feed-search-input" class="form-control" type="search" placeholder="Search posts by title or author..." autoComplete="off"/>
       </div>
-      <div class="feed-actions">
-        <button class="btn btn--secondary" id="my-profile-btn" type="button">My Profile</button>
-        <button class="btn btn--primary" id="create-post-btn" type="button">+ Create New Post</button>
-        <button class="btn btn--danger" id="logout-btn" type="button">Logout</button>
+
+      <div class="d-flex flex-wrap gap-2 mb-4">
+        <button class="btn btn-secondary" id="my-profile-btn" type="button">My Profile</button>
+        <button class="btn btn-primary" id="create-post-btn" type="button">+ Create New Post</button>
+        <button class="btn btn-danger" id="logout-btn" type="button">Logout</button>
       </div>
      
-      <div id ="feed-content" aria-live="polite">Loading posts...</div>
+      <div id="feed-content" aria-live="polite">Loading posts...</div>
     </section>
 `;
   const feedContent = document.querySelector("#feed-content");
@@ -107,14 +109,28 @@ export async function feedHandler() {
           : "";
 
         return `
-        <article class="post" data-id="${post.id}">
-        <h3>${title}</h3>
+        <article class="card shadow-sm mb-3" data-id="${post.id}">
+          <div class="card-body">
+
+            <h3 class="h5 card-title mb-2">${title}</h3>
         
-        <button type="button" class="post__author" data-profile="${authorRaw}">Author: ${authorName}</button>
-       ${body ? `<p>${body}</p>` : ""}
-        <small>Posted:  ${escapeHtml(created)}</small>
-        ${isAuthor ? `<button class="btn btn--danger" data-action="delete" type="button">Delete</button>` : ""}
-        ${isAuthor ? `<button class="btn btn--primary" data-action="edit" type="button">Edit</button>` : ""}
+            <button type="button" class="btn btn-link p-0 mb-2" data-profile="${authorRaw}">Author: ${authorName}</button>
+
+       ${body ? `<p class="card-text">${body}</p>` : ""}
+
+        <small class="text-muted d-block mb-3">Posted:  ${escapeHtml(created)}</small>
+
+        ${
+          isAuthor
+            ? `
+          <div class="d-flex gap-2">
+            <button class="btn btn-danger btn-sm" data-action="delete" type="button">Delete</button>
+            <button class="btn btn-secondary btn-sm" data-action="edit" type="button">Edit</button>
+          </div>
+        `
+            : ""
+        }
+          </div>
       </article>
     `;
       })
@@ -149,7 +165,7 @@ export async function feedHandler() {
     if (deleteBtn) {
       e.stopPropagation();
 
-      const card = e.target.closest(".post");
+      const card = e.target.closest("[data-id]");
       const id = card?.dataset.id;
       if (!id) return;
 
@@ -170,7 +186,7 @@ export async function feedHandler() {
     if (editBtn) {
       e.stopPropagation();
 
-      const card = e.target.closest(".post");
+      const card = e.target.closest("[data-id]");
       const id = card?.dataset.id;
       if (!id) return;
 
@@ -179,7 +195,7 @@ export async function feedHandler() {
     }
 
     // Post card click
-    const card = e.target.closest(".post");
+    const card = e.target.closest("[data-id]");
     if (!card) return;
 
     navigate(`#/post?id=${card.dataset.id}`);

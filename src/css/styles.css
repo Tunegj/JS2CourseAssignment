@@ -11420,4 +11420,12 @@ body {
   border-radius: 50%;
 }
 
+.btn-link {
+  text-decoration: none;
+}
+
+.card-body {
+  cursor: pointer;
+}
+
 /*# sourceMappingURL=styles.css.map */
