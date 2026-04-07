@@ -26,6 +26,7 @@ export function loginHandler() {
                     type="email"
                     id="email"
                     class="form-control"
+                    aria-describedby="email-error"
                     required
                   />
                   <div id="email-error" class="invalid-feedback"></div>
@@ -37,6 +38,7 @@ export function loginHandler() {
                     type="password"
                     id="password"
                     class="form-control"
+                    aria-describedby="password-error"
                     required
                   />
                   <div id="password-error" class="invalid-feedback"></div>
@@ -81,6 +83,7 @@ export function loginHandler() {
 
     clearFieldErrors(["email", "password"]);
     apiError.textContent = "";
+    apiError.classList.add("d-none");
 
     const email = document.querySelector("#email").value.trim();
     const password = document.querySelector("#password").value.trim();
@@ -126,6 +129,7 @@ export function loginHandler() {
       navigate("#/feed");
     } catch (error) {
       apiError.textContent = error.message ?? "Login failed, please try again.";
+      apiError.classList.remove("d-none");
     } finally {
       loginBtn.disabled = false;
       loginBtn.textContent = "Login";

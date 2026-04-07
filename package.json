@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "dev:sass": "sass --watch src/scss:dist/css",
-    "build:css": "sass src/scss:dist/css --style compressed"
+    "dev:sass": "sass --watch src/scss:src/css",
+    "build:css": "sass src/scss:src/css --style compressed"
   },
   "devDependencies": {
     "vite": "^7.3.1"
