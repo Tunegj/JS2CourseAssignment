@@ -14,10 +14,13 @@ export function loginHandler() {
   app.innerHTML = `
     <section class="container py-5">
       <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
+        <div class="col-12 col-md-7 col-lg-5">
           <div class="card shadow-sm border-0">
             <div class="card-body p-4 p-md-5">
-              <h1 class="h2 mb-4 text-center">Login</h1>
+              <div class="text-center mb-4">
+                <h1 class="h2 mb-2">Login</h1>
+                <p class="text-muted mb-0">Welcome back! Sign in to continue to your account.</p>
+              </div>
 
               <form id="login-form" novalidate>
                 <div class="mb-3">
@@ -52,7 +55,7 @@ export function loginHandler() {
 
                 <div class="d-grid">
                   <button id="login-btn" class="btn btn-primary" type="submit">
-                    Login
+                    Sign in
                   </button>
                 </div>
               </form>
@@ -64,7 +67,7 @@ export function loginHandler() {
                   class="btn btn-link p-0 align-baseline"
                   type="button"
                 >
-                  Go to register
+                  Create an account
                 </button>
               </p>
             </div>
@@ -109,7 +112,7 @@ export function loginHandler() {
     if (hasError) return;
 
     loginBtn.disabled = true;
-    loginBtn.textContent = "Logging in...";
+    loginBtn.textContent = "Signing in...";
 
     try {
       const result = await loginUser({ email, password });
@@ -132,7 +135,7 @@ export function loginHandler() {
       apiError.classList.remove("d-none");
     } finally {
       loginBtn.disabled = false;
-      loginBtn.textContent = "Login";
+      loginBtn.textContent = "Sign in";
     }
   });
 

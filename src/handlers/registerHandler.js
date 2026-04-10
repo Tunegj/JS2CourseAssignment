@@ -18,10 +18,13 @@ export function registerHandler() {
   app.innerHTML = `
     <section class="container py-5">
       <div class="row justify-content-center">
-        <div class="col-12 col-lg-8 col-xl-7">
+        <div class="col-12 col-md-8 col-lg-7 col-xl-6">
           <div class="card shadow-sm border-0">
             <div class="card-body p-4 p-md-5">
-              <h1 class="h2 mb-4 text-center">Register</h1>
+              <div class="text-center mb-4">
+                <h1 class="h2 mb-2">Register</h1>
+                <p class="text-muted mb-0">Create an account to get started.</p>
+              </div>
 
               <form id="register-form" novalidate>
                 <div class="mb-3">
@@ -35,6 +38,9 @@ export function registerHandler() {
                     minlength="3"
                     maxlength="20"
                   />
+                  <div id="username-help" class="form-text">
+                    3-20 characters, letters/numbers/underscores only.
+                  </div>
                   <div id="username-error" class="invalid-feedback"></div>
                 </div>
 
@@ -44,9 +50,12 @@ export function registerHandler() {
                     type="email"
                     id="email"
                     class="form-control"
-                    aria-describedby="email-error"
+                    aria-describedby="email-error email-help"
                     required
                   />
+                  <div id="email-help" class="form-text">
+                    Must be a valid @stud.noroff.no email address.
+                  </div>
                   <div id="email-error" class="invalid-feedback"></div>
                 </div>
 
@@ -56,10 +65,13 @@ export function registerHandler() {
                     type="password"
                     id="password"
                     class="form-control"
-                    aria-describedby="password-error"
+                    aria-describedby="password-error password-help"
                     required
                     minlength="8"
                   />
+                  <div id="password-help" class="form-text">
+                    Must be at least 8 characters long.
+                  </div>
                   <div id="password-error" class="invalid-feedback"></div>
                 </div>
 
@@ -74,7 +86,7 @@ export function registerHandler() {
                     placeholder="Tell us about yourself... (optional)"
                   ></textarea>
                   <div id="bio-help" class="form-text">
-                    Optional. Maximum 160 characters.
+                    Maximum 160 characters.
                   </div>
                   <div id="bio-error" class="invalid-feedback"></div>
                 </div>
@@ -113,7 +125,7 @@ export function registerHandler() {
 
                 <div class="d-grid">
                   <button type="submit" id="register-btn" class="btn btn-primary">
-                    Register
+                    Create account
                   </button>
                 </div>
               </form>
@@ -125,7 +137,7 @@ export function registerHandler() {
                   class="btn btn-link p-0 align-baseline"
                   type="button"
                 >
-                  Login here
+                  Sign in
                 </button>
               </p>
             </div>
@@ -177,7 +189,7 @@ export function registerHandler() {
       setFieldError("email", "Email is required.");
       hasError = true;
     } else if (!isValidEmail(email)) {
-      setFieldError("email", "Email must be a stud.noroff.no address.");
+      setFieldError("email", "Email must be a valid stud.noroff.no address.");
       hasError = true;
     }
     if (!password) {
@@ -203,7 +215,7 @@ export function registerHandler() {
     if (hasError) return;
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "Registering...";
+    submitBtn.textContent = "Creating account...";
 
     try {
       const payload = { name, email, password };
@@ -234,7 +246,7 @@ export function registerHandler() {
       apiError.classList.remove("d-none");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "Register";
+      submitBtn.textContent = "Create account";
     }
   });
 
