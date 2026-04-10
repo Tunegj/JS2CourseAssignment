@@ -30,13 +30,13 @@
   --bs-gray-800: #343a40;
   --bs-gray-900: #212529;
   --bs-primary: #687a6f;
-  --bs-secondary: #b3b1ac;
+  --bs-secondary: #e6b98c;
   --bs-danger: #e07a7a;
   --bs-primary-rgb: 104, 122, 111;
-  --bs-secondary-rgb: 179, 177, 172;
+  --bs-secondary-rgb: 230, 185, 140;
   --bs-danger-rgb: 224, 122, 122;
   --bs-primary-text-emphasis: rgb(41.6, 48.8, 44.4);
-  --bs-secondary-text-emphasis: rgb(71.6, 70.8, 68.8);
+  --bs-secondary-text-emphasis: #5c4a38;
   --bs-success-text-emphasis: rgb(10, 54, 33.6);
   --bs-info-text-emphasis: rgb(5.2, 80.8, 96);
   --bs-warning-text-emphasis: rgb(102, 77.2, 2.8);
@@ -44,7 +44,7 @@
   --bs-light-text-emphasis: #495057;
   --bs-dark-text-emphasis: #495057;
   --bs-primary-bg-subtle: rgb(224.8, 228.4, 226.2);
-  --bs-secondary-bg-subtle: rgb(239.8, 239.4, 238.4);
+  --bs-secondary-bg-subtle: #faf1e8;
   --bs-success-bg-subtle: rgb(209, 231, 220.8);
   --bs-info-bg-subtle: rgb(206.6, 244.4, 252);
   --bs-warning-bg-subtle: rgb(255, 242.6, 205.4);
@@ -52,7 +52,7 @@
   --bs-light-bg-subtle: rgb(251.5, 252, 252.5);
   --bs-dark-bg-subtle: #ced4da;
   --bs-primary-border-subtle: rgb(194.6, 201.8, 197.4);
-  --bs-secondary-border-subtle: rgb(224.6, 223.8, 221.8);
+  --bs-secondary-border-subtle: #f5e3d1;
   --bs-success-border-subtle: rgb(163, 207, 186.6);
   --bs-info-border-subtle: rgb(158.2, 233.8, 249);
   --bs-warning-border-subtle: rgb(255, 230.2, 155.8);
@@ -132,7 +132,7 @@
   --bs-tertiary-bg: rgb(42.5, 47.5, 52.5);
   --bs-tertiary-bg-rgb: 43, 48, 53;
   --bs-primary-text-emphasis: rgb(164.4, 175.2, 168.6);
-  --bs-secondary-text-emphasis: rgb(209.4, 208.2, 205.2);
+  --bs-secondary-text-emphasis: #f0d5ba;
   --bs-success-text-emphasis: rgb(117, 183, 152.4);
   --bs-info-text-emphasis: rgb(109.8, 223.2, 246);
   --bs-warning-text-emphasis: rgb(255, 217.8, 106.2);
@@ -140,7 +140,7 @@
   --bs-light-text-emphasis: #f8f9fa;
   --bs-dark-text-emphasis: #dee2e6;
   --bs-primary-bg-subtle: rgb(20.8, 24.4, 22.2);
-  --bs-secondary-bg-subtle: rgb(35.8, 35.4, 34.4);
+  --bs-secondary-bg-subtle: #2e251c;
   --bs-success-bg-subtle: rgb(5, 27, 16.8);
   --bs-info-bg-subtle: rgb(2.6, 40.4, 48);
   --bs-warning-bg-subtle: rgb(51, 38.6, 1.4);
@@ -148,7 +148,7 @@
   --bs-light-bg-subtle: #343a40;
   --bs-dark-bg-subtle: #1a1d20;
   --bs-primary-border-subtle: rgb(62.4, 73.2, 66.6);
-  --bs-secondary-border-subtle: rgb(107.4, 106.2, 103.2);
+  --bs-secondary-border-subtle: #8a6f54;
   --bs-success-border-subtle: rgb(15, 81, 50.4);
   --bs-info-border-subtle: rgb(7.8, 121.2, 144);
   --bs-warning-border-subtle: rgb(153, 115.8, 4.2);
@@ -1938,13 +1938,13 @@ progress {
 
 .table-secondary {
   --bs-table-color: #000;
-  --bs-table-bg: rgb(239.8, 239.4, 238.4);
-  --bs-table-border-color: rgb(191.84, 191.52, 190.72);
-  --bs-table-striped-bg: rgb(227.81, 227.43, 226.48);
+  --bs-table-bg: #faf1e8;
+  --bs-table-border-color: rgb(200, 192.8, 185.6);
+  --bs-table-striped-bg: rgb(237.5, 228.95, 220.4);
   --bs-table-striped-color: #000;
-  --bs-table-active-bg: rgb(215.82, 215.46, 214.56);
+  --bs-table-active-bg: rgb(225, 216.9, 208.8);
   --bs-table-active-color: #000;
-  --bs-table-hover-bg: rgb(221.815, 221.445, 220.52);
+  --bs-table-hover-bg: rgb(231.25, 222.925, 214.6);
   --bs-table-hover-color: #000;
   color: var(--bs-table-color);
   border-color: var(--bs-table-border-color);
@@ -2977,19 +2977,19 @@ textarea.form-control-lg {
 
 .btn-secondary {
   --bs-btn-color: #000;
-  --bs-btn-bg: #b3b1ac;
-  --bs-btn-border-color: #b3b1ac;
+  --bs-btn-bg: #e6b98c;
+  --bs-btn-border-color: #e6b98c;
   --bs-btn-hover-color: #000;
-  --bs-btn-hover-bg: rgb(190.4, 188.7, 184.45);
-  --bs-btn-hover-border-color: rgb(186.6, 184.8, 180.3);
-  --bs-btn-focus-shadow-rgb: 152, 150, 146;
+  --bs-btn-hover-bg: rgb(233.75, 195.5, 157.25);
+  --bs-btn-hover-border-color: rgb(232.5, 192, 151.5);
+  --bs-btn-focus-shadow-rgb: 196, 157, 119;
   --bs-btn-active-color: #000;
-  --bs-btn-active-bg: rgb(194.2, 192.6, 188.6);
-  --bs-btn-active-border-color: rgb(186.6, 184.8, 180.3);
+  --bs-btn-active-bg: #ebc7a3;
+  --bs-btn-active-border-color: rgb(232.5, 192, 151.5);
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   --bs-btn-disabled-color: #000;
-  --bs-btn-disabled-bg: #b3b1ac;
-  --bs-btn-disabled-border-color: #b3b1ac;
+  --bs-btn-disabled-bg: #e6b98c;
+  --bs-btn-disabled-border-color: #e6b98c;
 }
 
 .btn-danger {
@@ -3027,19 +3027,19 @@ textarea.form-control-lg {
 }
 
 .btn-outline-secondary {
-  --bs-btn-color: #b3b1ac;
-  --bs-btn-border-color: #b3b1ac;
+  --bs-btn-color: #e6b98c;
+  --bs-btn-border-color: #e6b98c;
   --bs-btn-hover-color: #000;
-  --bs-btn-hover-bg: #b3b1ac;
-  --bs-btn-hover-border-color: #b3b1ac;
-  --bs-btn-focus-shadow-rgb: 179, 177, 172;
+  --bs-btn-hover-bg: #e6b98c;
+  --bs-btn-hover-border-color: #e6b98c;
+  --bs-btn-focus-shadow-rgb: 230, 185, 140;
   --bs-btn-active-color: #000;
-  --bs-btn-active-bg: #b3b1ac;
-  --bs-btn-active-border-color: #b3b1ac;
+  --bs-btn-active-bg: #e6b98c;
+  --bs-btn-active-border-color: #e6b98c;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #b3b1ac;
+  --bs-btn-disabled-color: #e6b98c;
   --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: #b3b1ac;
+  --bs-btn-disabled-border-color: #e6b98c;
   --bs-gradient: none;
 }
 
@@ -6506,8 +6506,8 @@ textarea.form-control-lg {
   text-decoration-color: RGBA(var(--bs-secondary-rgb), var(--bs-link-underline-opacity, 1)) !important;
 }
 .link-secondary:hover, .link-secondary:focus {
-  color: RGBA(194, 193, 189, var(--bs-link-opacity, 1)) !important;
-  text-decoration-color: RGBA(194, 193, 189, var(--bs-link-underline-opacity, 1)) !important;
+  color: RGBA(235, 199, 163, var(--bs-link-opacity, 1)) !important;
+  text-decoration-color: RGBA(235, 199, 163, var(--bs-link-underline-opacity, 1)) !important;
 }
 
 .link-danger {
@@ -11397,11 +11397,6 @@ a:hover {
   color: #687a6f;
 }
 
-.post__author {
-  font-size: 0.9rem;
-  color: rgb(9, 48, 17) 72%;
-}
-
 .profile__banner img {
   width: 100%;
   height: 160px;
@@ -11420,26 +11415,32 @@ a:hover {
   text-decoration: none;
 }
 
-.card-body {
-  cursor: pointer;
-}
-
-.feed__post {
+.feed-post {
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.feed__post:hover {
+.feed-post:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.feed-post:focus-visible {
+  outline: 3px solid rgba(104, 122, 111, 0.35);
+  outline-offset: 3px;
 }
 
 .feed-post__author {
+  font-size: 0.95rem;
   width: fit-content;
 }
 
 .feed-post__author:hover {
   text-decoration: underline !important;
+}
+
+.btn-outline-secondary-dark-text {
+  color: #222;
 }
 
 /*# sourceMappingURL=styles.css.map */

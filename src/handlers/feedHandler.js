@@ -23,7 +23,7 @@ export async function feedHandler() {
             <div class="card-body p-3 p-md-4">
               <div class="row g-3 align-items-end">
                 <div class="col-12">
-                  <label for="feed-search-input" class="form-label">Search</label>
+                  <label for="feed-search-input" class="form-label fw-medium">Search</label>
                   <input 
                   id="feed-search-input" 
                   class="form-control" 
@@ -33,13 +33,13 @@ export async function feedHandler() {
 
                 <div class="col-12">
                   <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-outline-secondary" id="my-profile-btn" type="button">
+                    <button class="btn btn-secondary" id="my-profile-btn" type="button">
                       My Profile
                     </button>
                     <button class="btn btn-primary" id="create-post-btn" type="button">
                       + Create New Post
                     </button>
-                    <button class="btn btn-danger" id="logout-btn" type="button">
+                    <button class="btn btn-outline-secondary btn-outline-secondary-dark-text" id="logout-btn" type="button">
                       Logout
                     </button>
                   </div>
@@ -48,7 +48,13 @@ export async function feedHandler() {
             </div>
           </div>
   
-        <div id="feed-content" aria-live="polite">Loading posts...</div>
+        <div id="feed-content" class="mt-4" aria-live="polite">
+          <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5 text-center text-muted">
+              Loading posts...
+            </div>
+          </div>  
+        </div>
       </div>
     </div>
   </section>
@@ -133,40 +139,40 @@ export async function feedHandler() {
           : "";
 
         return `
-        <article class="card shadow-sm mb-3 border-0 feed-post" data-id="${post.id}">
-          <div class="card-body p-4">
-            <div class="d-flex flex-column gap-2">
-              <h3 class="h4 card-title mb-0">${title}</h3>
-        
+        <article class="card shadow-sm mb-4 border-0 feed-post" data-id="${post.id}" tabindex="0" role="link" aria-label="Open post: ${title} by ${authorName}">
+          <div class="card-body p-4 p-md-5">
+            <h3 class="h4 card-title mb-0">${title}</h3>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 text-muted small mb-2">
               <button 
                 type="button" 
                 class="btn btn-link p-0 text-start text-decoration-none feed-post__author" 
                 data-profile="${authorRaw}"
+                aria-label="View profile: ${authorName}"
+                role="link"
                 >
-                Author: ${authorName}
+                ${authorName}
               </button>
-
-              ${body ? `<p class="card-text mb-0">${body}</p>` : ""}
-
-              <small class="text-muted d-block pt-1">
-                Posted:  ${escapeHtml(created)}
-              </small>
-
-              ${
-                isAuthor
-                  ? `
-                <div class="d-flex gap-2">
-                  <button class="btn btn-outline-danger btn-sm" data-action="delete" type="button">
-                    Delete
-                  </button>
-                  <button class="btn btn-secondary btn-sm" data-action="edit" type="button">
-                    Edit
-                  </button>
-                </div>
-              `
-                  : ""
-              }
+              <span>•</span>
+              <span>${escapeHtml(created)}</span>
             </div>
+
+            ${body ? `<p class="card-text mb-3">${body}</p>` : ""}
+
+            ${
+              isAuthor
+                ? `
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-danger btn-sm" data-action="delete" type="button">
+                  Delete
+                </button>
+                <button class="btn btn-secondary btn-sm" data-action="edit" type="button">
+                  Edit
+                </button>
+              </div>
+            `
+                : ""
+            }
           </div>
       </article>
     `;
@@ -238,6 +244,17 @@ export async function feedHandler() {
     navigate(`#/post?id=${card.dataset.id}`);
   });
 
+  feedContent.addEventListener("keydown", (e) => {
+    const card = e.target.closest("[data-id]");
+    if (!card) return;
+
+    if (e.target !== card) return;
+
+    if (e.key === "Enter") {
+      navigate(`#/post?id=${card.dataset.id}`);
+    }
+  });
+
   searchInput.addEventListener("input", applySearch);
 
   // searchClearBtn.addEventListener("click", () => {
@@ -251,6 +268,14 @@ export async function feedHandler() {
     allPosts = Array.isArray(posts) ? posts : [];
     renderPosts(allPosts);
   } catch (error) {
-    feedContent.innerHTML = `<div class="alert alert-danger" role="alert">Error loading posts: ${escapeHtml(error.message ?? "Unknown error")}</div>`;
+    feedContent.innerHTML = `
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-md-5">
+          <div class="alert alert-danger" mb-0 role="alert">
+            Error loading posts: ${escapeHtml(error.message ?? "Unknown error")}
+          </div>
+        </div>
+      </div>
+    `;
   }
 }
