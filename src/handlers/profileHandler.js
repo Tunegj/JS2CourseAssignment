@@ -72,9 +72,18 @@ function isFollowing(profile, viewerName) {
  * @param {Array} posts The array of posts to render
  * @returns {void}
  */
-function renderPosts(container, posts) {
+function renderPosts(container, posts, profileName = "") {
   if (!Array.isArray(posts) || posts.length === 0) {
-    container.innerHTML = '<div class="alert alert-info">No posts yet.</div>';
+    container.innerHTML = `
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-md-5 text-center">
+          <h3 class="h5 mb-2">No posts yet</h3>
+          <p class="mb-0 text-muted">
+          ${profileName ? `${safeText(profileName)} hasn't posted anything yet.` : "There are no posts to show yet."}
+        </p>
+      </div>
+    </div>
+    `;
     return;
   }
 
@@ -85,13 +94,24 @@ function renderPosts(container, posts) {
       const created = p?.created ? new Date(p.created).toLocaleString() : "";
 
       return `
-            <article class="card shadow-sm mb-3" data-id="${p.id}" >
-              <div class="card-body">
-                <h3 class="h5 card-title mb-2">${title}</h3>
-                ${body ? `<p class="card-text">${body}</p>` : ""}
-                <small class="text-muted d-block">${escapeHtml(created)}</small>
-              </div>
-            </article>
+        <article 
+          class="card shadow-sm border-0 mb-4 feed-post" 
+          data-id="${p.id}" 
+          tabindex="0"
+          aria-label="View post titled ${title}"   
+        > 
+          <div class="card-body p-4 p-md-5 ">
+            <h3 class="h4 card-title mb-1">${title}</h3>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 text-muted small mb-2">
+              <span>${safeText(profileName || "Unknown Author")}</span>
+              <span>•</span>
+              <span>${escapeHtml(created)}</span>
+            </div>
+
+            ${body ? `<p class="card-text mb-0">${body}</p>` : ""}
+          </div>
+        </article>
         `;
     })
     .join("");
@@ -125,14 +145,15 @@ export async function profileHandler() {
 
   app.innerHTML = `
     <section class="container py-4">
-    <header class="d-flex justify-content-between align-items-center gap-3 mb-4 flex-wrap">
-        <button id="back-to-feed" class="btn btn-outline-secondary" type="button">← Back</button>
+      <header class="mb-4">
+        <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-3">
+          <button id="back-to-feed" class="btn btn-outline-secondary btn-outline-secondary-dark-text" type="button">← Back</button>
+    
+          <button class="btn btn-outline-secondary btn-outline-secondary-dark-text" id="logout-btn">Logout</button>
+        </div>
 
         <h1 class="h2 mb-0">${safeText(pageTitle)}</h1>
-
-    <button class="btn btn-danger" id="logout-btn">Logout</button>
-    </header>
-
+      </header>
         <div id="profile-content">Loading profile...</div>
     </section>
 `;
@@ -188,8 +209,9 @@ export async function profileHandler() {
               : ""
           }
 
-        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mb-4">
-          <div class="profile__avatar">
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-4 mb-4">
+
+          <div class="profile__avatar flex-shrink-0">
             ${
               avatarUrl
                 ? `<img src="${avatarUrl}" alt="" class="rounded-circle" style="width: 84px; height: 84px; object-fit: cover;" />`
@@ -206,7 +228,7 @@ export async function profileHandler() {
             }
           </div>
 
-          <div class="d-flex gap-2 flex-wrap">
+          <div class="d-flex gap-2 flex-wrap justify-content-md-end">
             ${
               isMe
                 ? `<button id="edit-profile-btn" class="btn btn-secondary" type="button">
@@ -224,30 +246,35 @@ export async function profileHandler() {
 
         ${
           profile?.bio
-            ? `<p class="mb-4">${safeText(profile.bio, "")}</p>`
-            : `<p class="text-muted mb-4">No bio yet.</p>`
+            ? `<p class="mb-2">${safeText(profile.bio, "")}</p>`
+            : `<p class="text-muted mb-2">No bio yet.</p>`
         }
 
-        <div class="d-flex gap-4 flex-wrap" aria-label="Profile stats">
+        <div class="d-flex gap-4 flex-wrap pt-3 border-top" aria-label="Profile stats">
           <div>
-            <div class="fw-semibold">Posts</div>
-            <div id="stat-posts">${posts}</div>
+            <div class="text-muted small">Posts</div>
+            <div class="fw-semibold fs-5" id="stat-posts">${posts}</div>
           </div>
           <div>
-            <div class="fw-semibold">Followers</div>
-            <div id="stat-followers">${followers}</div>
+            <div class="text-muted small">Followers</div>
+            <div class="fw-semibold fs-5" id="stat-followers">${followers}</div>
           </div>
           <div>
-            <div class="fw-semibold">Following</div>
-            <div id="stat-following">${following}</div>
+            <div class="text-muted small">Following</div>
+            <div class="fw-semibold fs-5" id="stat-following">${following}</div>
           </div>
         </div>
 
       </div>
 
-      <section>
-        <div class="d-flex justify-content-between align-items-center gap-3 mb-3 flex-wrap">
-          <h3 class="h4 mb-0">${isMe ? "My Posts" : "Posts"}</h3>
+      <section class="px-3 px-md-4">
+        <div class="d-flex justify-content-between align-items-center gap-3 mt-4 mb-3 flex-wrap">
+          <div>
+            <h3 class="h4 mb-1">${isMe ? "My Posts" : "Posts"}</h3>
+            <p class="text-muted small mb-0">
+              ${posts} ${posts === 1 ? "post" : "posts"}
+            </p>
+          </div>
         ${
           isMe
             ? `<button class="btn btn-primary" id="create-post-btn" type="button">
@@ -271,10 +298,21 @@ export async function profileHandler() {
       navigate(`#/post?id=${encodeURIComponent(card.dataset.id)}`);
     });
 
+    postsContainer.addEventListener("keydown", (e) => {
+      const card = e.target.closest("[data-id]");
+      if (!card) return;
+
+      if (e.target !== card) return;
+
+      if (e.key === "Enter") {
+        navigate(`#/post?id=${encodeURIComponent(card.dataset.id)}`);
+      }
+    });
+
     loadPosts(profile.name)
-      .then((posts) => renderPosts(postsContainer, posts))
+      .then((posts) => renderPosts(postsContainer, posts, profile.name))
       .catch((error) => {
-        postsContainer.innerHTML = `<div class="alert alert-danger role="alert">
+        postsContainer.innerHTML = `<div class="alert alert-danger" role="alert">
             ${safeText(error?.message ?? "Failed to load posts. Please try again.")}
             </div>`;
       });
