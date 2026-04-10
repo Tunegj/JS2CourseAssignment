@@ -70,8 +70,8 @@
   --bs-body-line-height: 1.5;
   --bs-body-color: #222;
   --bs-body-color-rgb: 34, 34, 34;
-  --bs-body-bg: #f5f5f5;
-  --bs-body-bg-rgb: 245, 245, 245;
+  --bs-body-bg: #f7f4ef;
+  --bs-body-bg-rgb: 247, 244, 239;
   --bs-emphasis-color: #000;
   --bs-emphasis-color-rgb: 0, 0, 0;
   --bs-secondary-color: rgba(34, 34, 34, 0.75);
@@ -2450,10 +2450,10 @@ textarea.form-control-lg {
   outline: 0;
 }
 .form-range:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 1px #f5f5f5, 0 0 0 0.25rem rgba(104, 122, 111, 0.25);
+  box-shadow: 0 0 0 1px #f7f4ef, 0 0 0 0.25rem rgba(104, 122, 111, 0.25);
 }
 .form-range:focus::-moz-range-thumb {
-  box-shadow: 0 0 0 1px #f5f5f5, 0 0 0 0.25rem rgba(104, 122, 111, 0.25);
+  box-shadow: 0 0 0 1px #f7f4ef, 0 0 0 0.25rem rgba(104, 122, 111, 0.25);
 }
 .form-range::-moz-focus-outer {
   border: 0;
@@ -11397,10 +11397,6 @@ a:hover {
   color: #687a6f;
 }
 
-body {
-  background: pink;
-}
-
 .post__author {
   font-size: 0.9rem;
   color: rgb(9, 48, 17) 72%;
@@ -11426,6 +11422,24 @@ body {
 
 .card-body {
   cursor: pointer;
+}
+
+.feed__post {
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.feed__post:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feed-post__author {
+  width: fit-content;
+}
+
+.feed-post__author:hover {
+  text-decoration: underline !important;
 }
 
 /*# sourceMappingURL=styles.css.map */

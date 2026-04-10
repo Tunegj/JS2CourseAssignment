@@ -276,7 +276,7 @@ export async function profileHandler() {
       .catch((error) => {
         postsContainer.innerHTML = `<div class="alert alert-danger role="alert">
             ${safeText(error?.message ?? "Failed to load posts. Please try again.")}
-            </p>`;
+            </div>`;
       });
 
     const newPostBtn = document.querySelector("#create-post-btn");

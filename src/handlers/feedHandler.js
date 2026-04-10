@@ -12,23 +12,46 @@ export async function feedHandler() {
 
   app.innerHTML = `
     <section class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+          <header class="mb-4 text-center"> 
+            <h1 aria-label="Feed" class="h2 fw-semibold mb-2" >Feed</h1>
+            <p class="text-muted mb-0"> Browse posts from the community</p>
+          </header>
 
-      <header class="mb-4 text-center"> 
-        <h1 aria-label="Feed" class="h2" >Feed</h1>
-      </header>
+          <div class ="card shadow-sm border-0 mb-4">
+            <div class="card-body p-3 p-md-4">
+              <div class="row g-3 align-items-end">
+                <div class="col-12">
+                  <label for="feed-search-input" class="form-label">Search</label>
+                  <input 
+                  id="feed-search-input" 
+                  class="form-control" 
+                  type="search" placeholder="Search posts by title or author..." 
+                  autoComplete="off"/>
+                </div>
 
-      <div class ="mb-3">
-        <input id="feed-search-input" class="form-control" type="search" placeholder="Search posts by title or author..." autoComplete="off"/>
+                <div class="col-12">
+                  <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-secondary" id="my-profile-btn" type="button">
+                      My Profile
+                    </button>
+                    <button class="btn btn-primary" id="create-post-btn" type="button">
+                      + Create New Post
+                    </button>
+                    <button class="btn btn-danger" id="logout-btn" type="button">
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+        <div id="feed-content" aria-live="polite">Loading posts...</div>
       </div>
-
-      <div class="d-flex flex-wrap gap-2 mb-4">
-        <button class="btn btn-secondary" id="my-profile-btn" type="button">My Profile</button>
-        <button class="btn btn-primary" id="create-post-btn" type="button">+ Create New Post</button>
-        <button class="btn btn-danger" id="logout-btn" type="button">Logout</button>
-      </div>
-     
-      <div id="feed-content" aria-live="polite">Loading posts...</div>
-    </section>
+    </div>
+  </section>
 `;
   const feedContent = document.querySelector("#feed-content");
   const searchInput = document.querySelector("#feed-search-input");
@@ -85,11 +108,12 @@ export async function feedHandler() {
   function renderPosts(posts, queryText = "") {
     if (!Array.isArray(posts) || posts.length === 0) {
       if (queryText) {
-        feedContent.innerHTML = `<p>No posts found matching "<strong>${escapeHtml(
+        feedContent.innerHTML = `<div class="alert alert-warning" role="alert">No posts found matching "<strong>${escapeHtml(
           queryText,
-        )}</strong>".</p>`;
+        )}</strong>".</div>`;
       } else {
-        feedContent.innerHTML = "<p>No posts found.</p>";
+        feedContent.innerHTML =
+          '<div class="alert alert-warning" role="alert">No posts found.</div>';
       }
       return;
     }
@@ -109,27 +133,40 @@ export async function feedHandler() {
           : "";
 
         return `
-        <article class="card shadow-sm mb-3" data-id="${post.id}">
-          <div class="card-body">
-
-            <h3 class="h5 card-title mb-2">${title}</h3>
+        <article class="card shadow-sm mb-3 border-0 feed-post" data-id="${post.id}">
+          <div class="card-body p-4">
+            <div class="d-flex flex-column gap-2">
+              <h3 class="h4 card-title mb-0">${title}</h3>
         
-            <button type="button" class="btn btn-link p-0 mb-2" data-profile="${authorRaw}">Author: ${authorName}</button>
+              <button 
+                type="button" 
+                class="btn btn-link p-0 text-start text-decoration-none feed-post__author" 
+                data-profile="${authorRaw}"
+                >
+                Author: ${authorName}
+              </button>
 
-       ${body ? `<p class="card-text">${body}</p>` : ""}
+              ${body ? `<p class="card-text mb-0">${body}</p>` : ""}
 
-        <small class="text-muted d-block mb-3">Posted:  ${escapeHtml(created)}</small>
+              <small class="text-muted d-block pt-1">
+                Posted:  ${escapeHtml(created)}
+              </small>
 
-        ${
-          isAuthor
-            ? `
-          <div class="d-flex gap-2">
-            <button class="btn btn-danger btn-sm" data-action="delete" type="button">Delete</button>
-            <button class="btn btn-secondary btn-sm" data-action="edit" type="button">Edit</button>
-          </div>
-        `
-            : ""
-        }
+              ${
+                isAuthor
+                  ? `
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-danger btn-sm" data-action="delete" type="button">
+                    Delete
+                  </button>
+                  <button class="btn btn-secondary btn-sm" data-action="edit" type="button">
+                    Edit
+                  </button>
+                </div>
+              `
+                  : ""
+              }
+            </div>
           </div>
       </article>
     `;
@@ -214,6 +251,6 @@ export async function feedHandler() {
     allPosts = Array.isArray(posts) ? posts : [];
     renderPosts(allPosts);
   } catch (error) {
-    feedContent.innerHTML = `<p class="api-error" role="alert">Error loading posts: ${escapeHtml(error.message ?? "Unknown error")}</p>`;
+    feedContent.innerHTML = `<div class="alert alert-danger" role="alert">Error loading posts: ${escapeHtml(error.message ?? "Unknown error")}</div>`;
   }
 }
