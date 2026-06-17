@@ -72,9 +72,18 @@ function isFollowing(profile, viewerName) {
  * @param {Array} posts The array of posts to render
  * @returns {void}
  */
-function renderPosts(container, posts) {
+function renderPosts(container, posts, profileName = "") {
   if (!Array.isArray(posts) || posts.length === 0) {
-    container.innerHTML = "<p>No posts yet.</p>";
+    container.innerHTML = `
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-md-5 text-center">
+          <h3 class="h5 mb-2">No posts yet</h3>
+          <p class="mb-0 text-muted">
+          ${profileName ? `${safeText(profileName)} hasn't posted anything yet.` : "There are no posts to show yet."}
+        </p>
+      </div>
+    </div>
+    `;
     return;
   }
 
@@ -85,11 +94,24 @@ function renderPosts(container, posts) {
       const created = p?.created ? new Date(p.created).toLocaleString() : "";
 
       return `
-            <article class="post" data-id="${p.id}" >
-                <h3>${title}</h3>
-                ${body ? `<p>${body}</p>` : ""}
-                <small>${escapeHtml(created)}</small>
-            </article>
+        <article 
+          class="card shadow-sm border-0 mb-4 feed-post" 
+          data-id="${p.id}" 
+          tabindex="0"
+          aria-label="View post titled ${title}"   
+        > 
+          <div class="card-body p-4 p-md-5 ">
+            <h3 class="h4 card-title mb-1">${title}</h3>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 text-muted small mb-2">
+              <span>${safeText(profileName || "Unknown Author")}</span>
+              <span>•</span>
+              <span>${escapeHtml(created)}</span>
+            </div>
+
+            ${body ? `<p class="card-text mb-0">${body}</p>` : ""}
+          </div>
+        </article>
         `;
     })
     .join("");
@@ -122,12 +144,16 @@ export async function profileHandler() {
   const pageTitle = profileName ? `${profileName}'s Profile` : "My Profile";
 
   app.innerHTML = `
-    <section class="profile container">
-    <header class="profile-page__header">
-        <button id="back-to-feed" class="btn btn--icon" type="button">← Back</button>
-        <h1>${safeText(pageTitle)}</h1>
-    <button class="btn btn--danger" id="logout-btn">Logout</button>
-    </header>
+    <section class="container py-4">
+      <header class="mb-4">
+        <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-3">
+          <button id="back-to-feed" class="btn btn-outline-secondary btn-outline-secondary-dark-text" type="button">← Back</button>
+    
+          <button class="btn btn-outline-secondary btn-outline-secondary-dark-text" id="logout-btn">Logout</button>
+        </div>
+
+        <h1 class="h2 mb-0">${safeText(pageTitle)}</h1>
+      </header>
         <div id="profile-content">Loading profile...</div>
     </section>
 `;
@@ -172,50 +198,92 @@ export async function profileHandler() {
     const { posts, followers, following } = getCounts(profile);
 
     profileContent.innerHTML = `
-      <header class="profile">
-        ${bannerUrl ? `<div class="profile__banner"><img src="${bannerUrl}" alt="" /></div>` : ""}
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
 
-        <div class="profile__top">
-          <div class="profile__avatar">
+          ${
+            bannerUrl
+              ? `<div class="mb-4 profile__banner">
+            <img src="${bannerUrl}" alt="" class="img-fluid rounded w-100" />
+            </div>`
+              : ""
+          }
+
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-4 mb-4">
+
+          <div class="profile__avatar flex-shrink-0">
             ${
               avatarUrl
-                ? `<img src="${avatarUrl}" alt="" />`
-                : `<div class="profile__avatar-fallback" aria-hidden="true"></div>`
+                ? `<img src="${avatarUrl}" alt="" class="rounded-circle" style="width: 84px; height: 84px; object-fit: cover;" />`
+                : `<div class="rounded-circle bg-secondary-subtle" style="width: 84px; height: 84px;" aria-hidden="true"></div>`
             }
           </div>
 
-          <div class="profile__meta">
-            <h2 class="profile__name">${safeText(profile?.name, "Unnamed User")}</h2>
-            ${isMe && profile?.email ? `<p class="profile__email">${safeText(profile.email, "")}</p>` : ""}
+          <div class="flex-grow-1">
+            <h2 class="h4 mb-1">${safeText(profile?.name, "Unnamed User")}</h2>
+            ${
+              isMe && profile?.email
+                ? `<p class="text-muted mb-0">${safeText(profile.email, "")}</p>`
+                : ""
+            }
           </div>
 
-          <div class="profile__actions">
-        ${isMe ? `<button id="edit-profile-btn" class="btn btn--secondary" type="button">Edit Profile</button>` : ""}
-        ${showFollowButton ? `<button id="follow-btn" class="btn profile__follow-btn" type="button"></button>` : ""}
+          <div class="d-flex gap-2 flex-wrap justify-content-md-end">
+            ${
+              isMe
+                ? `<button id="edit-profile-btn" class="btn btn-secondary" type="button">
+                  Edit Profile
+                </button>`
+                : ""
+            }
+        ${
+          showFollowButton
+            ? `<button id="follow-btn" class="btn btn-primary" type="button"></button>`
+            : ""
+        }
           </div>
         </div>
+
         ${
           profile?.bio
-            ? `<p class="profile__bio">${safeText(profile.bio, "")}</p>`
-            : `<p class="profile__bio profile__bio--empty">No bio yet.</p>`
+            ? `<p class="mb-2">${safeText(profile.bio, "")}</p>`
+            : `<p class="text-muted mb-2">No bio yet.</p>`
         }
 
-        <dl class="profile__stats" aria-label="Profile stats">
-          <div class="profile__stat">
-            <dt>Posts</dt><dd id="stat-posts">${posts}</dd>
+        <div class="d-flex gap-4 flex-wrap pt-3 border-top" aria-label="Profile stats">
+          <div>
+            <div class="text-muted small">Posts</div>
+            <div class="fw-semibold fs-5" id="stat-posts">${posts}</div>
           </div>
-          <div class="profile__stat">
-            <dt>Followers</dt><dd id="stat-followers">${followers}</dd>
+          <div>
+            <div class="text-muted small">Followers</div>
+            <div class="fw-semibold fs-5" id="stat-followers">${followers}</div>
           </div>
-          <div class="profile__stat">
-            <dt>Following</dt><dd id="stat-following">${following}</dd>
+          <div>
+            <div class="text-muted small">Following</div>
+            <div class="fw-semibold fs-5" id="stat-following">${following}</div>
           </div>
-        </dl>
-      </header>
+        </div>
 
-      <section class="profile-posts container">
-        <h3 class="profile-posts__title">${isMe ? "My Posts" : "Posts"}</h3>
-        ${isMe ? `<button class="btn btn--primary" id="create-post-btn" type="button">+ Create New Post</button>` : ""}
+      </div>
+
+      <section class="px-3 px-md-4">
+        <div class="d-flex justify-content-between align-items-center gap-3 mt-4 mb-3 flex-wrap">
+          <div>
+            <h3 class="h4 mb-1">${isMe ? "My Posts" : "Posts"}</h3>
+            <p class="text-muted small mb-0">
+              ${posts} ${posts === 1 ? "post" : "posts"}
+            </p>
+          </div>
+        ${
+          isMe
+            ? `<button class="btn btn-primary" id="create-post-btn" type="button">
+          + Create New Post
+          </button>`
+            : ""
+        }
+        </div>
+
         <div id="profile-posts" class="profile-posts__list" aria-live="polite">
           Loading posts...
         </div>
@@ -225,17 +293,28 @@ export async function profileHandler() {
     const postsContainer = document.querySelector("#profile-posts");
 
     postsContainer.addEventListener("click", (e) => {
-      const card = e.target.closest(".post");
+      const card = e.target.closest("[data-id]");
       if (!card) return;
       navigate(`#/post?id=${encodeURIComponent(card.dataset.id)}`);
     });
 
+    postsContainer.addEventListener("keydown", (e) => {
+      const card = e.target.closest("[data-id]");
+      if (!card) return;
+
+      if (e.target !== card) return;
+
+      if (e.key === "Enter") {
+        navigate(`#/post?id=${encodeURIComponent(card.dataset.id)}`);
+      }
+    });
+
     loadPosts(profile.name)
-      .then((posts) => renderPosts(postsContainer, posts))
+      .then((posts) => renderPosts(postsContainer, posts, profile.name))
       .catch((error) => {
-        postsContainer.innerHTML = `<p class="profile-posts__error" role="alert">
+        postsContainer.innerHTML = `<div class="alert alert-danger" role="alert">
             ${safeText(error?.message ?? "Failed to load posts. Please try again.")}
-            </p>`;
+            </div>`;
       });
 
     const newPostBtn = document.querySelector("#create-post-btn");
@@ -319,35 +398,57 @@ export async function profileHandler() {
     const bannerUrlValue = safeValue(profile?.banner?.url, "");
 
     profileContent.innerHTML = `
-    <div class="profile-edit">
-      <h2 class="profile-edit__title">Edit Profile</h2>
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-4">
+        <h2 class="h3 mb-4">Edit Profile</h2>
 
-      <form id="profile-edit-form" class="form">
-      <label>Bio<textarea id="edit-bio" name="bio" rows="4" maxlength="160" placeholder="Write a short bio (max 160 characters)...">${bioValue}</textarea></label>
- 
+        <form id="profile-edit-form" novalidate>
+          <div class="mb-3">
+            <label for="edit-bio" class="form-label">Bio</label>
+            <textarea 
+            id="edit-bio" 
+            name="bio" 
+            class="form-control" 
+            rows="4" 
+            maxlength="160" 
+            placeholder="Write a short bio (max 160 characters)..."
+            >${bioValue}</textarea>
+          </div>
       
-          <fieldset class="profile-edit__fieldset">
-            <legend>Banner</legend>
-            <label>
-              Banner URL
-              <input id="edit-banner-url" type="url" value="${bannerUrlValue}" placeholder="https://..." />
-            </label>
-          </fieldset>
-          <fieldset class="profile-edit__fieldset">
-            <legend>Avatar</legend>
-            <label>
-              Avatar URL
-              <input id="edit-avatar-url" type="url" value="${avatarUrlValue}" placeholder="https://..." />
-            </label>
-          </fieldset>
+          <div class="mb-3">
+            <label for="edit-banner-url" class="form-label">Banner URL</label>
+            <input 
+              id="edit-banner-url" 
+              type="url"
+              class="form-control" 
+              value="${bannerUrlValue}" 
+              placeholder="https://..." 
+              />
+          </div>
+          
+          <div class="mb-3">
+            <label for="edit-avatar-url" class="form-label">Avatar URL</label>
+            <input 
+            id="edit-avatar-url" 
+            type="url" 
+            class="form-control"
+            value="${avatarUrlValue}" 
+            placeholder="https://..." 
+            />
+          </div>
 
-          <p id="profile-edit-error" class="api-error" role="alert"></p>
+          <div 
+          id="profile-edit-error" 
+          class="alert alert-danger d-none" 
+          role="alert"
+          ></div>
 
-          <div class="profile-edit__actions">
-            <button id="profile-save-btn" class="btn btn--primary" type="submit">Save</button>
-            <button id="profile-cancel-btn" class="btn btn--danger" type="button">Cancel</button>
+          <div class="d-flex gap-2 flex-wrap">
+            <button id="profile-save-btn" class="btn btn-primary" type="submit">Save</button>
+            <button id="profile-cancel-btn" class="btn btn-outline-secondary" type="button">Cancel</button>
           </div>
         </form>
+      </div>
       </div>
     `;
 
@@ -363,6 +464,7 @@ export async function profileHandler() {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       errorEl.textContent = "";
+      errorEl.classList.add("d-none");
 
       const bio = document.querySelector("#edit-bio").value.trim();
       const bannerUrl = document.querySelector("#edit-banner-url").value.trim();
@@ -388,6 +490,7 @@ export async function profileHandler() {
       } catch (error) {
         errorEl.textContent =
           error?.message || "Failed to update profile. Please try again.";
+        errorEl.classList.remove("d-none");
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = "Save";
@@ -399,8 +502,8 @@ export async function profileHandler() {
     await loadProfile(); // Refresh profile to get latest data and version
     renderView(currentProfile);
   } catch (error) {
-    profileContent.innerHTML = `<p class="profile-error" role="alert">
+    profileContent.innerHTML = `<div class="alert alert-danger" role="alert">
         ${safeText(error?.message ?? "Failed to load profile. Please try again.")}
-        </p>`;
+        </div>`;
   }
 }

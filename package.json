@@ -6,9 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:sass": "sass --watch src/scss:src/css",
+    "build:css": "sass src/scss:src/css --style compressed"
   },
   "devDependencies": {
     "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "sass": "^1.99.0"
   }
 }

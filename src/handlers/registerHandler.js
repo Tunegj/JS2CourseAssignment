@@ -8,7 +8,6 @@ import {
   isValidUrl,
 } from "../utils/validators.js";
 import { setFieldError, clearFieldErrors } from "../utils/formErrors.js";
-import { getApiErrorMessage } from "../utils/apiErrors.js";
 
 /**
  * Render the registration form and handle user registration
@@ -17,46 +16,136 @@ export function registerHandler() {
   const app = document.querySelector("#app");
 
   app.innerHTML = `
-    <section class="register container">
-        <h1>Register</h1>
-        
-        <form id="register-form" class="form" novalidate>
-          <label for="username">Username:
-            <input type="text" id="username" required />
-            <p id="username-error" class="field-error"></p>
-          </label>
-          <label for="email">Email:
-            <input type="email" id="email" required />
-            <p id="email-error" class="field-error"></p>
-          </label>
-          <label for="password">Password:
-            <input type="password" id="password" required />
-            <p id="password-error" class="field-error"></p>
-          </label>
+    <section class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-7 col-xl-6">
+          <div class="card shadow-sm border-0">
+            <div class="card-body p-4 p-md-5">
+              <div class="text-center mb-4">
+                <h1 class="h2 mb-2">Register</h1>
+                <p class="text-muted mb-0">Create an account to get started.</p>
+              </div>
 
-          <label for="bio">Bio:
-            <textarea id="bio" rows="6" placeholder="Tell us about yourself...(optional)" ></textarea>
-            <p id="bio-error" class="field-error"></p>
-          </label>
+              <form id="register-form" novalidate>
+                <div class="mb-3">
+                  <label for="username" class="form-label">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    class="form-control"
+                    aria-describedby="username-error"
+                    required
+                    minlength="3"
+                    maxlength="20"
+                  />
+                  <div id="username-help" class="form-text">
+                    3-20 characters, letters/numbers/underscores only.
+                  </div>
+                  <div id="username-error" class="invalid-feedback"></div>
+                </div>
 
-          <label for="avatar-url">(Optional) Avatar URL:
-            <input type="url" id="avatar-url" placeholder="https://..." />
-            <p id="avatar-url-error" class="field-error"></p>
-          </label>
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="form-control"
+                    aria-describedby="email-error email-help"
+                    required
+                  />
+                  <div id="email-help" class="form-text">
+                    Must be a valid @stud.noroff.no email address.
+                  </div>
+                  <div id="email-error" class="invalid-feedback"></div>
+                </div>
 
-          <label for="banner-url">(Optional) Banner URL:
-            <input type="url" id="banner-url" placeholder="https://..." />
-            <p id="banner-url-error" class="field-error"></p>
-          </label>
-          
-          <p id="api-error" class="api-error"></p> 
+                <div class="mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    class="form-control"
+                    aria-describedby="password-error password-help"
+                    required
+                    minlength="8"
+                  />
+                  <div id="password-help" class="form-text">
+                    Must be at least 8 characters long.
+                  </div>
+                  <div id="password-error" class="invalid-feedback"></div>
+                </div>
 
-        <button type="submit" id="register-btn" class="btn btn--primary">Register</button>
-        </form>
+                <div class="mb-3">
+                  <label for="bio" class="form-label">Bio</label>
+                  <textarea
+                    id="bio"
+                    class="form-control"
+                    rows="5"
+                    maxlength="160"
+                    aria-describedby="bio-error bio-help"
+                    placeholder="Tell us about yourself... (optional)"
+                  ></textarea>
+                  <div id="bio-help" class="form-text">
+                    Maximum 160 characters.
+                  </div>
+                  <div id="bio-error" class="invalid-feedback"></div>
+                </div>
 
-        <div>Already have an account? <button id="to-login" class="btn btn--ghost">Login here</button></div>
+                <div class="mb-3">
+                  <label for="avatar-url" class="form-label">Avatar URL</label>
+                  <input
+                    type="url"
+                    id="avatar-url"
+                    class="form-control"
+                    aria-describedby="avatar-url-error avatar-url-help"
+                    placeholder="https://..."
+                  />
+                  <div id="avatar-url-help" class="form-text">Optional.</div>
+                  <div id="avatar-url-error" class="invalid-feedback"></div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="banner-url" class="form-label">Banner URL</label>
+                  <input
+                    type="url"
+                    id="banner-url"
+                    class="form-control"
+                    aria-describedby="banner-url-error banner-url-help"
+                    placeholder="https://..."
+                  />
+                  <div id="banner-url-help" class="form-text">Optional.</div>
+                  <div id="banner-url-error" class="invalid-feedback"></div>
+                </div>
+
+                <div
+                  id="api-error"
+                  class="alert alert-danger d-none"
+                  role="alert"
+                ></div>
+
+                <div class="d-grid">
+                  <button type="submit" id="register-btn" class="btn btn-primary">
+                    Create account
+                  </button>
+                </div>
+              </form>
+
+              <p class="mt-4 mb-0 text-center">
+                Already have an account?
+                <button
+                  id="to-login"
+                  class="btn btn-link p-0 align-baseline"
+                  type="button"
+                >
+                  Sign in
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
-`;
+  `;
 
   const form = document.querySelector("#register-form");
   const apiError = document.querySelector("#api-error");
@@ -74,6 +163,7 @@ export function registerHandler() {
       "banner-url",
     ]);
     apiError.textContent = "";
+    apiError.classList.add("d-none");
 
     const name = document.querySelector("#username").value.trim();
     const email = document.querySelector("#email").value.trim();
@@ -99,7 +189,7 @@ export function registerHandler() {
       setFieldError("email", "Email is required.");
       hasError = true;
     } else if (!isValidEmail(email)) {
-      setFieldError("email", "Email must be a stud.noroff.no address.");
+      setFieldError("email", "Email must be a valid stud.noroff.no address.");
       hasError = true;
     }
     if (!password) {
@@ -125,7 +215,7 @@ export function registerHandler() {
     if (hasError) return;
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "Registering...";
+    submitBtn.textContent = "Creating account...";
 
     try {
       const payload = { name, email, password };
@@ -152,9 +242,11 @@ export function registerHandler() {
       } else {
         apiError.textContent = message;
       }
+
+      apiError.classList.remove("d-none");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "Register";
+      submitBtn.textContent = "Create account";
     }
   });
 
